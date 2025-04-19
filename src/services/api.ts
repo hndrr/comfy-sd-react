@@ -413,64 +413,80 @@ async function waitForProcessing(
     };
 
     ws.onmessage = async (event) => {
-      const message = JSON.parse(event.data);
-      if (message.type === "progress") {
-        const progressValue = message.data.value / message.data.max;
-        if (onProgress) onProgress(progressValue);
-      }
+      // Handle only string data as JSON
+      if (typeof event.data === "string") {
+        const message = JSON.parse(event.data);
+        // console.log("Image WS Message:", message); // Optional: Log only parsed messages
 
-      const isExecutionComplete =
-        message.type === "executing" && message.data.node === null;
-      const isQueueEmpty =
-        message.type === "status" &&
-        message.data?.status?.exec_info?.queue_remaining === 0;
+        if (message.type === "progress") {
+          const progressValue = message.data.value / message.data.max;
+          if (onProgress) onProgress(progressValue);
+        }
 
-      if (isExecutionComplete || isQueueEmpty) {
-        clearTimeout(timeoutId);
-        if (onProgress) onProgress(null);
+        const isExecutionComplete =
+          message.type === "executing" && message.data.node === null;
+        const isQueueEmpty =
+          message.type === "status" &&
+          message.data?.status?.exec_info?.queue_remaining === 0;
 
-        try {
-          await new Promise((res) => setTimeout(res, 500)); // Wait for history
-          const historyResponse = await axios.get(
-            `${apiUrl}/history/${promptId}`
-          );
-          const historyData = historyResponse.data[promptId];
-          const outputs = historyData?.outputs;
+        if (isExecutionComplete || isQueueEmpty) {
+          clearTimeout(timeoutId);
+          if (onProgress) onProgress(null);
 
-          if (outputs) {
-            const saveImageNodeId = Object.keys(outputs).find(
-              (id) => outputs[id]?.images
+          try {
+            await new Promise((res) => setTimeout(res, 500)); // Wait for history
+            const historyResponse = await axios.get(
+              `${apiUrl}/history/${promptId}`
             );
-            const imageData = saveImageNodeId ? outputs[saveImageNodeId] : null;
+            const historyData = historyResponse.data[promptId];
+            const outputs = historyData?.outputs;
 
-            if (imageData?.images?.[0]) {
-              const img = imageData.images[0];
-              const imageUrl = `${apiUrl}/view?filename=${encodeURIComponent(
-                img.filename
-              )}&type=${img.type || "output"}&subfolder=${img.subfolder || ""}`;
-              ws.close();
-              resolve(imageUrl);
+            if (outputs) {
+              const saveImageNodeId = Object.keys(outputs).find(
+                (id) => outputs[id]?.images
+              );
+              const imageData = saveImageNodeId
+                ? outputs[saveImageNodeId]
+                : null;
+
+              if (imageData?.images?.[0]) {
+                const img = imageData.images[0];
+                const imageUrl = `${apiUrl}/view?filename=${encodeURIComponent(
+                  img.filename
+                )}&type=${img.type || "output"}&subfolder=${
+                  img.subfolder || ""
+                }`;
+                ws.close();
+                resolve(imageUrl);
+              } else {
+                ws.close(); // Close WS before rejecting
+                reject(
+                  "生成された画像が見つかりませんでした (SaveImage output)"
+                );
+              }
             } else {
               ws.close(); // Close WS before rejecting
-              reject("生成された画像が見つかりませんでした (SaveImage output)");
+              reject("処理結果が見つかりませんでした (History API)");
             }
-          } else {
-            ws.close(); // Close WS before rejecting
-            reject("処理結果が見つかりませんでした (History API)");
+          } catch (error) {
+            console.error("履歴の取得に失敗しました", error);
+            ws.close(); // Ensure WS is closed on error
+            reject("履歴の取得に失敗しました");
           }
-        } catch (error) {
-          console.error("履歴の取得に失敗しました", error);
-          ws.close(); // Ensure WS is closed on error
-          reject("履歴の取得に失敗しました");
+          // Removed finally block as ws.close() is handled in try/catch/reject paths
+        } else if (message.type === "error") {
+          // Still inside the 'if (typeof event.data === 'string')' block
+          clearTimeout(timeoutId);
+          if (onProgress) onProgress(null);
+          ws.close();
+          reject(
+            `エラーが発生しました: ${message.data.message || "Unknown error"}`
+          );
         }
-        // Removed finally block as ws.close() is handled in try/catch/reject paths
-      } else if (message.type === "error") {
-        clearTimeout(timeoutId);
-        if (onProgress) onProgress(null);
-        ws.close();
-        reject(
-          `エラーが発生しました: ${message.data.message || "Unknown error"}`
-        );
+        // Close the 'if (typeof event.data === 'string')' block
+      } else {
+        // Optional: Log if binary data is received
+        // console.log("Received binary WebSocket message.");
       }
     };
 
@@ -508,62 +524,77 @@ async function waitForVideoProcessing(
     };
 
     ws.onmessage = async (event) => {
-      const message = JSON.parse(event.data);
-      if (message.type === "progress") {
-        const progressValue = message.data.value / message.data.max;
-        if (onProgress) onProgress(progressValue);
-      }
+      // Handle only string data as JSON
+      if (typeof event.data === "string") {
+        const message = JSON.parse(event.data);
+        // console.log("Video WS Message:", message); // Optional: Log only parsed messages
 
-      const isExecutionComplete =
-        message.type === "executing" && message.data.node === null;
-      const isQueueEmpty =
-        message.type === "status" &&
-        message.data?.status?.exec_info?.queue_remaining === 0;
+        if (message.type === "progress") {
+          const progressValue = message.data.value / message.data.max;
+          if (onProgress) onProgress(progressValue);
+        }
 
-      if (isExecutionComplete || isQueueEmpty) {
-        clearTimeout(timeoutId);
-        if (onProgress) onProgress(null);
+        const isExecutionComplete =
+          message.type === "executing" && message.data.node === null;
+        const isQueueEmpty =
+          message.type === "status" &&
+          message.data?.status?.exec_info?.queue_remaining === 0;
 
-        try {
-          await new Promise((res) => setTimeout(res, 1000)); // Wait longer for video history
-          const historyResponse = await axios.get(
-            `${apiUrl}/history/${promptId}`
-          );
-          const historyData = historyResponse.data[promptId];
-          const outputs = historyData?.outputs;
+        if (isExecutionComplete || isQueueEmpty) {
+          clearTimeout(timeoutId);
+          if (onProgress) onProgress(null);
 
-          if (outputs) {
-            const videoCombineNodeId = "23";
-            const videoData = outputs[videoCombineNodeId];
+          try {
+            await new Promise((res) => setTimeout(res, 1000)); // Wait longer for video history
+            const historyResponse = await axios.get(
+              `${apiUrl}/history/${promptId}`
+            );
+            const historyData = historyResponse.data[promptId];
+            const outputs = historyData?.outputs;
 
-            if (videoData?.videos?.[0]) {
-              const videoInfo = videoData.videos[0];
-              const videoUrl = `${apiUrl}/view?filename=${encodeURIComponent(
-                videoInfo.filename
-              )}&type=${videoInfo.type}&subfolder=${videoInfo.subfolder || ""}`;
-              ws.close();
-              resolve(videoUrl);
+            if (outputs) {
+              const videoCombineNodeId = "23";
+              const videoData = outputs[videoCombineNodeId];
+
+              // Check for both 'videos' and 'gifs' arrays
+              const outputArray = videoData?.videos || videoData?.gifs;
+
+              if (outputArray?.[0]) {
+                const videoInfo = outputArray[0];
+                // Ensure type is provided, default to 'output' if missing
+                const type = videoInfo.type || "output";
+                const videoUrl = `${apiUrl}/view?filename=${encodeURIComponent(
+                  videoInfo.filename
+                )}&type=${type}&subfolder=${videoInfo.subfolder || ""}`;
+                ws.close();
+                resolve(videoUrl);
+              } else {
+                ws.close(); // Close WS before rejecting
+                reject(
+                  "生成された動画が見つかりませんでした (VHS_VideoCombine output: videos/gifs array not found or empty)"
+                );
+              }
             } else {
               ws.close(); // Close WS before rejecting
-              reject(
-                "生成された動画が見つかりませんでした (VHS_VideoCombine output)"
-              );
+              reject("動画処理結果が見つかりませんでした (History API)");
             }
-          } else {
-            ws.close(); // Close WS before rejecting
-            reject("動画処理結果が見つかりませんでした (History API)");
+          } catch (error) {
+            console.error("動画履歴の取得に失敗しました", error);
+            ws.close(); // Ensure WS is closed on error
+            reject("動画履歴の取得に失敗しました");
           }
-        } catch (error) {
-          console.error("動画履歴の取得に失敗しました", error);
-          ws.close(); // Ensure WS is closed on error
-          reject("動画履歴の取得に失敗しました");
+          // Removed finally block as ws.close() is handled in try/catch/reject paths
+        } else if (message.type === "error") {
+          // Still inside the 'if (typeof event.data === 'string')' block
+          clearTimeout(timeoutId);
+          if (onProgress) onProgress(null);
+          ws.close();
+          reject(`動画生成エラー: ${message.data.message || "Unknown error"}`);
         }
-        // Removed finally block as ws.close() is handled in try/catch/reject paths
-      } else if (message.type === "error") {
-        clearTimeout(timeoutId);
-        if (onProgress) onProgress(null);
-        ws.close();
-        reject(`動画生成エラー: ${message.data.message || "Unknown error"}`);
+        // Close the 'if (typeof event.data === 'string')' block
+      } else {
+        // Optional: Log if binary data is received
+        // console.log("Received binary WebSocket message.");
       }
     };
 

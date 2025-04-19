@@ -48,7 +48,7 @@ const DEFAULT_PARAMS: ComfyUIParams = {
 
 const DEFAULT_VIDEO_PARAMS: VideoGenerationParams = {
   steps: 30, // デフォルト値 (JSONワークフローから)
-  cfgScale: 7, // デフォルト値 (JSONワークフローから)
+  cfgScale: 1, // デフォルト値 (JSONワークフローから)
   motionStrength: 0.15, // デフォルト値 (JSONワークフローから)
   fps: 24, // デフォルト値 (JSONワークフローから)
   seed: -1, // 追加 (JSONワークフローから)
