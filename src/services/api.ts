@@ -2,11 +2,8 @@ import axios from "axios";
 import { ComfyUIParams, ApiResponse } from "../types";
 import { useAppStore } from "../store/useAppStore";
 
-// モジュールスコープでの setProgress 取得を削除
-
 // ComfyUIのAPIと通信するサービス
 export const comfyUIApi = {
-  // ステータスを確認する
   async checkStatus(): Promise<ApiResponse> {
     try {
       const { apiUrl } = useAppStore.getState();
@@ -24,7 +21,8 @@ export const comfyUIApi = {
   // 画像をアップロードしてImage-to-Imageを実行する
   async processImage(
     imageFile: File,
-    params: ComfyUIParams
+    params: ComfyUIParams,
+    onProgress?: (progress: number | null) => void // onProgress コールバックを追加
   ): Promise<ApiResponse> {
     try {
       const { apiUrl } = useAppStore.getState();
@@ -57,10 +55,8 @@ export const comfyUIApi = {
         ? `${uploadedImageFolder}/${uploadedImageName}`
         : uploadedImageName;
 
-      // ワークフローの作成
       const workflow = buildWorkflow(imagePath, params);
 
-      // プロンプトの実行
       const promptResponse = await axios.post(`${apiUrl}/prompt`, {
         prompt: workflow,
       });
@@ -74,8 +70,8 @@ export const comfyUIApi = {
 
       const promptId = promptResponse.data.prompt_id;
 
-      // 処理の完了を待機
-      const result = await waitForProcessing(apiUrl, promptId);
+      // 処理の完了を待機 (onProgress を渡す)
+      const result = await waitForProcessing(apiUrl, promptId, onProgress);
 
       return { status: "success", data: result };
     } catch (error) {
@@ -165,10 +161,10 @@ function buildWorkflow(imagePath: string, params: ComfyUIParams): object {
 // 処理の完了を待機する関数
 async function waitForProcessing(
   apiUrl: string,
-  promptId: string
+  promptId: string,
+  onProgress?: (progress: number | null) => void // onProgress コールバックを追加
 ): Promise<string> {
-  // 関数内で最新の setProgress を取得
-  const { setProgress } = useAppStore.getState();
+  // setProgress の取得は削除
 
   return new Promise((resolve, reject) => {
     // WebSocketを使用してリアルタイムに進捗を監視
@@ -191,10 +187,12 @@ async function waitForProcessing(
       const message = JSON.parse(event.data);
       console.log("WebSocket Message Received:", message); // 受信メッセージをログ出力
 
-      // 進捗メッセージの場合、状態を更新
+      // 進捗メッセージの場合、コールバックを呼び出す
       if (message.type === "progress") {
         const progressValue = message.data.value / message.data.max;
-        setProgress(progressValue); // 0-1 の値で進捗を更新
+        if (onProgress) {
+          onProgress(progressValue); // コールバックを呼び出し
+        }
       }
 
       // 完了判定ロジック
@@ -212,8 +210,10 @@ async function waitForProcessing(
         // progressCompleted のリセットは不要
 
         try {
-          // 完了時に進捗を null にリセット
-          setProgress(null);
+          // 完了時に進捗を null にリセット (コールバック経由で)
+          if (onProgress) {
+            onProgress(null);
+          }
           // 履歴取得前に少し待機（サーバー側での準備時間を考慮）
           await new Promise((resolve) => setTimeout(resolve, 500)); // 0.5秒待機
 
@@ -267,7 +267,9 @@ async function waitForProcessing(
       // エラーイベント (エラー発生時にも進捗をリセット)
       if (message.type === "error") {
         clearTimeout(timeoutId);
-        setProgress(null); // 進捗をリセット
+        if (onProgress) {
+          onProgress(null); // コールバック経由でリセット
+        }
         ws.close();
         reject(
           `エラーが発生しました: ${message.data.message || "Unknown error"}`
