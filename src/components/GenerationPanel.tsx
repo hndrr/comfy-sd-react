@@ -12,6 +12,7 @@ const GenerationPanel: React.FC = () => {
     setIsGenerating,
     addResult,
     setError,
+    setProgress, // setProgress を取得
   } = useAppStore();
 
   const [connectionStatus, setConnectionStatus] = useState<
@@ -46,7 +47,11 @@ const GenerationPanel: React.FC = () => {
     setError(null);
 
     try {
-      const result = await comfyUIApi.processImage(sourceImage.file, params);
+      const result = await comfyUIApi.processImage(
+        sourceImage.file,
+        params,
+        setProgress
+      );
 
       if (result.status === "success" && result.data) {
         // 結果を保存
