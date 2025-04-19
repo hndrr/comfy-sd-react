@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { ImageFile, ComfyUIParams, GenerationResult } from "../types";
+import { GenerationParams as VideoGenerationParams } from "../components/ParameterSettings"; // 動画生成パラメータの型をインポート
 
 interface AppState {
   darkMode: boolean;
@@ -19,6 +20,20 @@ interface AppState {
   setApiUrl: (url: string) => void;
   progress: number | null; // 進捗状況 (0-1) または null
   setProgress: (progress: number | null) => void; // 進捗更新アクション
+
+  // --- Video Generation State ---
+  videoPrompt: string;
+  setVideoPrompt: (prompt: string) => void;
+  videoGenerationParams: VideoGenerationParams;
+  setVideoGenerationParams: (params: Partial<VideoGenerationParams>) => void;
+  videoSourceImage: ImageFile; // 動画生成用ソース画像
+  setVideoSourceImage: (image: ImageFile) => void; // 動画生成用ソース画像アクション
+  isGeneratingVideo: boolean;
+  setIsGeneratingVideo: (value: boolean) => void;
+  generatedVideoUrl: string | null;
+  setGeneratedVideoUrl: (url: string | null) => void;
+  videoError: string | null;
+  setVideoError: (error: string | null) => void;
 }
 
 const DEFAULT_PARAMS: ComfyUIParams = {
@@ -29,6 +44,15 @@ const DEFAULT_PARAMS: ComfyUIParams = {
   cfg: 7,
   sampler: "dpmpp_2m", // ユーザー環境に合わせたデフォルトサンプラー
   seed: -1,
+};
+
+const DEFAULT_VIDEO_PARAMS: VideoGenerationParams = {
+  steps: 30, // デフォルト値 (JSONワークフローから)
+  cfgScale: 7, // デフォルト値 (JSONワークフローから)
+  motionStrength: 0.15, // デフォルト値 (JSONワークフローから)
+  fps: 24, // デフォルト値 (JSONワークフローから)
+  seed: -1, // 追加 (JSONワークフローから)
+  total_second_length: 1, // 追加 (JSONワークフローから widget 12)
 };
 
 // LocalStorageから結果を読み込む
@@ -102,4 +126,38 @@ export const useAppStore = create<AppState>((set) => ({
 
   progress: null, // 初期状態は null
   setProgress: (progress) => set({ progress }), // 進捗更新
+
+  // --- Video Generation Actions ---
+  videoPrompt: "A cinematic shot of dinosaurs moving violently to intimidate", // デフォルトプロンプト例
+  setVideoPrompt: (prompt) => set({ videoPrompt: prompt }),
+
+  videoGenerationParams: DEFAULT_VIDEO_PARAMS,
+  setVideoGenerationParams: (newParams) =>
+    set((state) => ({
+      videoGenerationParams: { ...state.videoGenerationParams, ...newParams },
+    })),
+
+  isGeneratingVideo: false,
+  // 動画生成開始/終了時にエラーと結果URLをリセット
+  setIsGeneratingVideo: (value) =>
+    set({
+      isGeneratingVideo: value,
+      generatedVideoUrl: null,
+      videoError: null,
+    }),
+
+  generatedVideoUrl: null,
+  setGeneratedVideoUrl: (url) =>
+    set({ generatedVideoUrl: url, isGeneratingVideo: false }), // 結果セット時に生成中フラグをfalseに
+
+  videoError: null,
+  setVideoError: (error) =>
+    set({ videoError: error, isGeneratingVideo: false }), // エラーセット時に生成中フラグをfalseに
+
+  videoSourceImage: {
+    // 動画生成用ソース画像の初期状態
+    file: null,
+    preview: "",
+  },
+  setVideoSourceImage: (image) => set({ videoSourceImage: image }), // 動画生成用ソース画像アクション
 }));
