@@ -125,6 +125,23 @@ const GenerationPanel: React.FC = () => {
       <ImageUploader imageType="image" /> {/* imageType を指定 */}
       {/* 2. Prompt Input */}
       <PromptInput prompt={prompt} setPrompt={setPrompt} />
+      {/* Negative Prompt Input */}
+      <div>
+        <label
+          htmlFor="negativePromptPanel" // IDを他と区別
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+        >
+          ネガティブプロンプト
+        </label>
+        <textarea
+          id="negativePromptPanel"
+          rows={2}
+          value={params.negativePrompt}
+          onChange={(e) => updateParams({ negativePrompt: e.target.value })}
+          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+          placeholder="避けたい特徴を入力してください..."
+        />
+      </div>
       {/* 3. Parameter Settings */}
       {/* SettingsForm は params と setParams を内部で useAppStore から取得するため、props は不要 */}
       <SettingsForm />

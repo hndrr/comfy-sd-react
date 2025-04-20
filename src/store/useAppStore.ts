@@ -36,6 +36,9 @@ interface AppState {
   setGeneratedVideoUrl: (url: string | null) => void;
   videoError: string | null;
   setVideoError: (error: string | null) => void;
+  // --- Connection Settings Panel State ---
+  isConnectionSettingsOpen: boolean;
+  toggleConnectionSettings: () => void;
 }
 
 const DEFAULT_PARAMS: ComfyUIParams = {
@@ -166,4 +169,11 @@ export const useAppStore = create<AppState>((set) => ({
     preview: "",
   },
   setVideoSourceImage: (image) => set({ videoSourceImage: image }), // 動画生成用ソース画像アクション
+
+  // --- Connection Settings Panel Actions ---
+  isConnectionSettingsOpen: false,
+  toggleConnectionSettings: () =>
+    set((state) => ({
+      isConnectionSettingsOpen: !state.isConnectionSettingsOpen,
+    })),
 }));
