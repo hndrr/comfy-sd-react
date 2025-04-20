@@ -50,11 +50,12 @@ export default defineConfig({
         target: "http://127.0.0.1:8188",
         changeOrigin: true,
       },
-      // WebSocket接続もプロキシする必要がある
       "/ws": {
-        target: "ws://127.0.0.1:8188", // WebSocketの場合はws://
-        ws: true, // WebSocketプロキシを有効にする
+        target: "ws://127.0.0.1:8188",
+        ws: true,
         changeOrigin: true,
+        secure: false, // 証明書の検証を無効にする（デバッグ用）
+        rewrite: (path) => path.replace(/^\/ws/, ""), // /ws プレフィックスを削除して転送
       },
     },
   },
