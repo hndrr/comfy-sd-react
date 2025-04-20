@@ -9,8 +9,12 @@ const ResultItem: React.FC<{
   timestamp: number;
   onDelete: (id: string) => void;
   onPreview: (url: string) => void;
-  onSelectAsSource: (imageUrl: string) => void; // ソース選択用コールバックを追加
-}> = ({ id, imageUrl, timestamp, onDelete, onPreview, onSelectAsSource }) => {
+  // onSelectAsSource は削除
+}> = ({ id, imageUrl, timestamp, onDelete, onPreview }) => {
+  // onSelectAsSource を削除
+  const { activeTab, setSourceImage, setVideoSourceImage, setError } =
+    useAppStore(); // ストアから必要なものを取得
+
   const date = new Date(timestamp);
   const formattedDate = new Intl.DateTimeFormat("ja-JP", {
     year: "numeric",
@@ -19,6 +23,51 @@ const ResultItem: React.FC<{
     hour: "2-digit",
     minute: "2-digit",
   }).format(date);
+
+  // ソースとして選択する処理
+  const handleSelectAsSource = async (urlToFetch: string) => {
+    try {
+      const response = await fetch(urlToFetch);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const blob = await response.blob();
+      // ファイル名をURLのクエリパラメータから取得
+      let fileName = "selected_source.png";
+      try {
+        const url = new URL(urlToFetch);
+        const params = new URLSearchParams(url.search);
+        const filenameFromUrl = params.get("filename");
+        if (filenameFromUrl) {
+          fileName = filenameFromUrl;
+        } else {
+          const pathPart = url.pathname.split("/").pop();
+          if (pathPart) {
+            fileName = pathPart;
+          }
+        }
+      } catch (e) {
+        console.error("Error parsing URL for filename:", e);
+        fileName = urlToFetch.split("/").pop() || "selected_source.png";
+      }
+
+      const file = new File([blob], fileName, { type: blob.type });
+      const imageFile = { file, preview: urlToFetch };
+
+      if (activeTab === "image") {
+        setSourceImage(imageFile);
+      } else if (activeTab === "video") {
+        setVideoSourceImage(imageFile);
+      }
+      setError(null); // エラーをクリア
+    } catch (error) {
+      console.error(
+        "Error fetching or creating file from selected image:",
+        error
+      );
+      setError("Failed to load the selected source image.");
+    }
+  };
 
   return (
     <div className="relative group rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
@@ -54,11 +103,13 @@ const ResultItem: React.FC<{
             <button
               type="button"
               onClick={(e) => {
-                e.stopPropagation();
-                onSelectAsSource(imageUrl);
-              }} // イベント伝播を停止
+                e.stopPropagation(); // イベント伝播を停止
+                handleSelectAsSource(imageUrl); // 新しい関数を呼び出す
+              }}
               className="p-1.5 rounded-full bg-green-600/80 text-white hover:bg-green-700 transition-colors"
-              aria-label="ソース画像として使用"
+              aria-label={`ソース画像として使用 (${
+                activeTab === "image" ? "画像生成" : "動画生成"
+              })`} // アクティブタブに応じてラベル変更
               title="ソース画像として使用"
             >
               <SendToBack size={16} />
@@ -83,9 +134,8 @@ const ResultItem: React.FC<{
 };
 
 const ResultsGallery: React.FC = () => {
-  // setSelectedSourceImage を useAppStore から取得
-  const { results, removeResult, openPreviewModal, setSelectedSourceImage } =
-    useAppStore();
+  // setSelectedSourceImage は不要になったので削除
+  const { results, removeResult, openPreviewModal } = useAppStore();
 
   if (results.length === 0) {
     return null;
@@ -106,7 +156,7 @@ const ResultsGallery: React.FC = () => {
             timestamp={result.timestamp}
             onDelete={removeResult}
             onPreview={openPreviewModal}
-            onSelectAsSource={setSelectedSourceImage} // ソース選択関数を渡す
+            // onSelectAsSource は ResultItem 内部で処理するため削除
           />
         ))}
       </div>

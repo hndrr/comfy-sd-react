@@ -1,4 +1,4 @@
-import React, { useEffect } from "react"; // useEffect をインポート
+import React from "react"; // useEffect を削除
 import ImageUploader from "./ImageUploader"; // 既存コンポーネント
 import PromptInput from "./PromptInput"; // 新規
 import ParameterSettings from "./ParameterSettings"; // 新規
@@ -12,8 +12,8 @@ import { comfyUIApi } from "../services/api"; // APIサービス
 const VideoGenerationPanel: React.FC = () => {
   const {
     videoSourceImage,
-    setVideoSourceImage, // setVideoSourceImage を追加
-    selectedSourceImage, // selectedSourceImage を追加
+    // setVideoSourceImage, // 不要になったため削除
+    // selectedSourceImage, // 不要になったため削除
     videoPrompt,
     videoGenerationParams,
     isGeneratingVideo, // 状態管理から取得 (新規)
@@ -24,72 +24,25 @@ const VideoGenerationPanel: React.FC = () => {
     setVideoGenerationParams, // 状態管理アクション (新規)
     setIsGeneratingVideo, // 状態管理アクション (新規)
     setGeneratedVideoUrl, // 状態管理アクション (新規)
-    setVideoError, // 状態管理アクション (新規)
+    // setVideoError, // setError は ResultsGallery で使用するためここでは不要
     // setProgress, // WebSocket実装後に有効化
     // progress,
   } = useAppStore();
 
-  // selectedSourceImage が変更されたら videoSourceImage を更新する Effect
-  useEffect(() => {
-    if (selectedSourceImage) {
-      const fetchImageAndSetFile = async () => {
-        try {
-          const response = await fetch(selectedSourceImage);
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          const blob = await response.blob();
-          // ファイル名をURLのクエリパラメータから取得
-          let fileName = "selected_source.png"; // デフォルトファイル名
-          try {
-            const url = new URL(selectedSourceImage);
-            const params = new URLSearchParams(url.search);
-            const filenameFromUrl = params.get("filename");
-            if (filenameFromUrl) {
-              fileName = filenameFromUrl;
-            } else {
-              // filenameパラメータがない場合、パスの最後の部分を試す (フォールバック)
-              const pathPart = url.pathname.split("/").pop();
-              if (pathPart) {
-                fileName = pathPart;
-              }
-            }
-          } catch (e) {
-            console.error("Error parsing URL for filename:", e);
-            // URL解析に失敗した場合、既存のロジックをフォールバックとして使用
-            fileName =
-              selectedSourceImage.split("/").pop() || "selected_source.png";
-          }
-
-          const file = new File([blob], fileName, { type: blob.type });
-          setVideoSourceImage({ file, preview: selectedSourceImage });
-        } catch (error) {
-          console.error(
-            "Error fetching or creating file from selected image:",
-            error
-          );
-          // エラー処理: ユーザーに通知するなど
-          setVideoError("Failed to load the selected source image.");
-        }
-      };
-      fetchImageAndSetFile();
-    }
-    // selectedSourceImage が null になった場合（例えばクリア機能を追加した場合）は
-    // videoSourceImage もリセットするかどうかを検討
-    // else {
-    //   setVideoSourceImage({ file: null, preview: "" });
-    // }
-  }, [selectedSourceImage, setVideoSourceImage, setVideoError]); // 依存配列に setVideoError を追加
+  // 不要になった useEffect を削除
 
   const handleGenerateClick = async () => {
+    // setVideoError は ResultsGallery で処理するため、ここでの呼び出しを削除
     if (!videoSourceImage.file) {
       // videoSourceImage を使用
-      setVideoError("Please select an image first.");
+      // setError("Please select an image first."); // setError を使用
+      useAppStore.getState().setError("Please select an image first."); // 直接ストアのアクションを呼ぶ
       return;
     }
 
     setIsGeneratingVideo(true); // 生成開始
-    setVideoError(null);
+    // setVideoError(null); // setError を使用
+    useAppStore.getState().setError(null); // 直接ストアのアクションを呼ぶ
     // setProgress(0); // WebSocket実装後に有効化
 
     try {
@@ -111,17 +64,23 @@ const VideoGenerationPanel: React.FC = () => {
         // imageUrl は動画URLを想定
         setGeneratedVideoUrl(result.data.imageUrl);
       } else {
-        setVideoError(
-          result.error || "Failed to generate video or invalid data received."
-        );
+        // setVideoError(...) // setError を使用
+        useAppStore
+          .getState()
+          .setError(
+            result.error || "Failed to generate video or invalid data received."
+          );
       }
     } catch (error) {
       console.error("Video generation failed:", error);
-      setVideoError(
-        error instanceof Error
-          ? error.message
-          : "An unknown error occurred during video generation."
-      );
+      // setVideoError(...) // setError を使用
+      useAppStore
+        .getState()
+        .setError(
+          error instanceof Error
+            ? error.message
+            : "An unknown error occurred during video generation."
+        );
     } finally {
       // setIsGeneratingVideo(false); // generateVideo内で結果/エラー時にfalseになるはず
       // setProgress(null); // WebSocket実装後に有効化

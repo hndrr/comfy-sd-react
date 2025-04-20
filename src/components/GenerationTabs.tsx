@@ -1,11 +1,26 @@
 import React from "react";
+import { useAppStore } from "../store/useAppStore"; // useAppStore をインポート
 import { Tabs, TabList, Tab, TabPanel } from "react-aria-components";
 import GenerationPanel from "./GenerationPanel"; // 画像生成
 import VideoGenerationPanel from "./VideoGenerationPanel"; // 動画生成
 
 const GenerationTabs = () => {
+  const { activeTab, setActiveTab } = useAppStore(); // activeTab も取得
+
+  const handleTabChange = (key: React.Key) => {
+    if (key === "image-tab") {
+      setActiveTab("image");
+    } else if (key === "video-tab") {
+      setActiveTab("video");
+    }
+  };
+
   return (
-    <Tabs className="w-full">
+    <Tabs
+      className="w-full"
+      selectedKey={activeTab === "image" ? "image-tab" : "video-tab"} // selectedKey を追加
+      onSelectionChange={handleTabChange}
+    >
       <TabList
         aria-label="生成タイプ選択"
         className="flex border-b border-gray-200 dark:border-gray-700 mb-4"
