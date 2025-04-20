@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useAppStore } from "./store/useAppStore";
 import Header from "./components/Header";
 // import ImageUploader from "./components/ImageUploader"; // 削除
