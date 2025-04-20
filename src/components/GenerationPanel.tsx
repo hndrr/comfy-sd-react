@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from "react"; // useEffect を削除
 import { Play, AlertTriangle, Loader } from "lucide-react";
 import { useAppStore } from "../store/useAppStore";
 import { comfyUIApi } from "../services/api";
@@ -11,6 +11,8 @@ import SettingsForm from "./SettingsForm"; // 追加
 const GenerationPanel: React.FC = () => {
   const {
     sourceImage, // 画像生成用ソース画像
+    // setSourceImage, // 不要になったため削除
+    // selectedSourceImage, // 不要になったため削除
     prompt, // 画像生成用プロンプト (追加)
     params, // 画像生成用パラメータ
     isGenerating,
@@ -99,6 +101,8 @@ const GenerationPanel: React.FC = () => {
       setIsGenerating(false);
     }
   };
+
+  // 不要になった useEffect を削除
 
   return (
     <div className="space-y-6">

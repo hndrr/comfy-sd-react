@@ -49,6 +49,10 @@ interface AppState {
   // --- Selected Source Image for Video ---
   selectedSourceImage: string | null; // 選択されたソース画像のURL
   setSelectedSourceImage: (imageUrl: string | null) => void; // ソース画像選択アクション
+
+  // --- Active Tab State ---
+  activeTab: "image" | "video"; // アクティブなタブの状態を追加
+  setActiveTab: (tab: "image" | "video") => void; // アクションを追加
 }
 
 const DEFAULT_PARAMS: ComfyUIParams = {
@@ -198,4 +202,8 @@ export const useAppStore = create<AppState>((set) => ({
   // --- Selected Source Image Actions ---
   selectedSourceImage: null, // 初期値は null
   setSelectedSourceImage: (imageUrl) => set({ selectedSourceImage: imageUrl }),
+
+  // --- Active Tab Actions ---
+  activeTab: "image", // 初期タブを 'image' に設定
+  setActiveTab: (tab) => set({ activeTab: tab }), // タブ切り替えアクション
 }));
