@@ -11,15 +11,10 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
 }) => {
   return (
     <div className="mt-4 p-4 border border-gray-200 dark:border-gray-700 rounded-lg shadow-inner bg-gray-50 dark:bg-gray-800/50">
-      {" "}
-      {/* 背景色、ボーダー色追加 */}
       <h3 className="text-lg font-medium mb-2 text-gray-900 dark:text-white">
         Generated Video
       </h3>{" "}
-      {/* 文字色追加 */}
       <div className="aspect-w-16 aspect-h-9 bg-black rounded">
-        {" "}
-        {/* 背景色追加 */}
         <video
           controls
           src={videoUrl}
