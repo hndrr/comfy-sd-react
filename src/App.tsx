@@ -5,9 +5,18 @@ import GenerationTabs from "./components/GenerationTabs"; // タブコンポー�
 import ResultsGallery from "./components/ResultsGallery";
 import ErrorAlert from "./components/ErrorAlert";
 import { ConnectionSettingsPanel } from "./components/ConnectionSettingsPanel"; // パネルをインポート
+import { ImagePreviewModal } from "./components/ImagePreviewModal"; // 画像プレビューモーダルをインポート
 
 function App() {
-  const { darkMode, isConnectionSettingsOpen } = useAppStore(); // isConnectionSettingsOpen を取得
+  const {
+    darkMode,
+    isConnectionSettingsOpen,
+    isPreviewModalOpen, // モーダル表示状態を取得
+    previewImageUrl, // 表示する画像URLを取得
+    closePreviewModal, // モーダルを閉じる関数を取得
+  } = useAppStore();
+
+  // デバッグ用 useEffect を削除
 
   // ダークモードの適用
   useEffect(() => {
@@ -35,6 +44,13 @@ function App() {
 
       {/* 接続設定パネルを条件付きでレンダリング */}
       {isConnectionSettingsOpen && <ConnectionSettingsPanel />}
+
+      {/* 画像プレビューモーダルを条件付きでレンダリング */}
+      <ImagePreviewModal
+        isOpen={isPreviewModalOpen}
+        imageUrl={previewImageUrl}
+        onClose={closePreviewModal}
+      />
     </div>
   );
 }
