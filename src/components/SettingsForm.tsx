@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Sliders, Zap, Settings } from "lucide-react";
+import { Sliders, Zap } from "lucide-react"; // Settings を削除
 import { useAppStore } from "../store/useAppStore";
 import { generateRandomSeed } from "../utils/imageHelpers";
 
@@ -19,9 +19,9 @@ const samplers = [
 ];
 
 const SettingsForm: React.FC = () => {
-  const { params, updateParams, apiUrl, setApiUrl } = useAppStore();
+  const { params, updateParams } = useAppStore(); // apiUrl, setApiUrl を削除
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
+  // showSettings state を削除
 
   const handleRandomSeed = () => {
     updateParams({ seed: generateRandomSeed() });
@@ -34,40 +34,7 @@ const SettingsForm: React.FC = () => {
       </h2>
 
       <div className="space-y-4">
-        <div>
-          <label
-            htmlFor="prompt"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-          >
-            プロンプト
-          </label>
-          <textarea
-            id="prompt"
-            rows={3}
-            value={params.prompt}
-            onChange={(e) => updateParams({ prompt: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-            placeholder="生成したい画像の詳細を入力してください..."
-          />
-        </div>
-
-        <div>
-          <label
-            htmlFor="negativePrompt"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-          >
-            ネガティブプロンプト
-          </label>
-          <textarea
-            id="negativePrompt"
-            rows={2}
-            value={params.negativePrompt}
-            onChange={(e) => updateParams({ negativePrompt: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-            placeholder="避けたい特徴を入力してください..."
-          />
-        </div>
-
+        {/* プロンプトとネガティブプロンプトの入力欄を削除 */}
         <div>
           <label
             htmlFor="denoiseStrength"
@@ -209,38 +176,7 @@ const SettingsForm: React.FC = () => {
           </div>
         )}
 
-        <button
-          type="button"
-          onClick={() => setShowSettings(!showSettings)}
-          className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
-        >
-          <Settings size={16} />
-          <span>{showSettings ? "接続設定を隠す" : "接続設定を表示"}</span>
-        </button>
-
-        {showSettings && (
-          <div className="space-y-4 pt-2 border-t border-gray-200 dark:border-gray-800">
-            <div>
-              <label
-                htmlFor="apiUrl"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >
-                ComfyUI API URL
-              </label>
-              <input
-                id="apiUrl"
-                type="text"
-                value={apiUrl}
-                onChange={(e) => setApiUrl(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                placeholder="http://127.0.0.1:8188"
-              />
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                別PCで実行中のComfyUI APIのURLを入力してください。
-              </p>
-            </div>
-          </div>
-        )}
+        {/* 接続設定ボタンとフォームを削除 */}
       </div>
     </div>
   );
