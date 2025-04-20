@@ -1,63 +1,73 @@
-import React, { useCallback, useRef } from 'react';
-import { Upload, X } from 'lucide-react';
-import { useAppStore } from '../store/useAppStore';
-import { createPreviewFromFile } from '../utils/imageHelpers';
+import React, { useCallback, useRef } from "react";
+import { Upload, X } from "lucide-react";
+import { useAppStore } from "../store/useAppStore";
+import { createPreviewFromFile } from "../utils/imageHelpers";
+interface ImageUploaderProps {
+  imageType: "image" | "video";
+}
 
-const ImageUploader: React.FC = () => {
+const ImageUploader: React.FC<ImageUploaderProps> = ({ imageType }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { sourceImage, setSourceImage } = useAppStore();
-  
+  const { sourceImage, setSourceImage, videoSourceImage, setVideoSourceImage } =
+    useAppStore();
+
+  const currentImage = imageType === "video" ? videoSourceImage : sourceImage;
+  const setImage = imageType === "video" ? setVideoSourceImage : setSourceImage;
+
   const handleFileChange = useCallback(
     async (event: React.ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
       if (!file) return;
-      
+
       try {
         const preview = await createPreviewFromFile(file);
-        setSourceImage({ file, preview });
+        setImage({ file, preview });
       } catch (error) {
-        console.error('画像のプレビュー作成に失敗しました', error);
+        console.error("画像のプレビュー作成に失敗しました", error);
       }
     },
-    [setSourceImage]
+    [setImage] // 依存配列を更新
   );
-  
+
   const handleDrop = useCallback(
     async (event: React.DragEvent<HTMLDivElement>) => {
       event.preventDefault();
-      
+
       const file = event.dataTransfer.files?.[0];
       if (!file) return;
-      
+
       try {
         const preview = await createPreviewFromFile(file);
-        setSourceImage({ file, preview });
+        setImage({ file, preview });
       } catch (error) {
-        console.error('画像のプレビュー作成に失敗しました', error);
+        console.error("画像のプレビュー作成に失敗しました", error);
       }
     },
-    [setSourceImage]
+    [setImage]
   );
-  
-  const handleDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-  }, []);
-  
+
+  const handleDragOver = useCallback(
+    (event: React.DragEvent<HTMLDivElement>) => {
+      event.preventDefault();
+    },
+    []
+  );
+
   const handleClear = useCallback(() => {
-    setSourceImage({ file: null, preview: '' });
+    setImage({ file: null, preview: "" });
     if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+      fileInputRef.current.value = "";
     }
-  }, [setSourceImage]);
-  
+  }, [setImage]);
+
   return (
     <div className="w-full">
       <h2 className="text-lg font-medium mb-2 text-gray-900 dark:text-white">
         ソース画像
       </h2>
-      
-      {!sourceImage.preview ? (
-        <div 
+
+      {!currentImage.preview ? (
+        <div
           className="border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg p-8 text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
           onClick={() => fileInputRef.current?.click()}
           onDrop={handleDrop}
@@ -66,7 +76,10 @@ const ImageUploader: React.FC = () => {
           <Upload className="mx-auto h-12 w-12 text-gray-400" />
           <p className="mt-2 text-gray-600 dark:text-gray-400">
             画像をドラッグ＆ドロップ、または
-            <span className="text-blue-600 dark:text-blue-400 font-medium"> クリックして選択</span>
+            <span className="text-blue-600 dark:text-blue-400 font-medium">
+              {" "}
+              クリックして選択
+            </span>
           </p>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-500">
             PNG, JPG, WEBP (最大10MB)
@@ -74,9 +87,9 @@ const ImageUploader: React.FC = () => {
         </div>
       ) : (
         <div className="relative rounded-lg overflow-hidden">
-          <img 
-            src={sourceImage.preview} 
-            alt="アップロードされた画像" 
+          <img
+            src={currentImage.preview}
+            alt="アップロードされた画像"
             className="w-full h-auto object-contain rounded-lg"
           />
           <button
@@ -89,7 +102,7 @@ const ImageUploader: React.FC = () => {
           </button>
         </div>
       )}
-      
+
       <input
         ref={fileInputRef}
         type="file"
