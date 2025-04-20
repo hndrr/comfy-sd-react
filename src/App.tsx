@@ -1,10 +1,9 @@
 import React, { useEffect } from "react";
 import { useAppStore } from "./store/useAppStore";
 import Header from "./components/Header";
-import ImageUploader from "./components/ImageUploader";
-import SettingsForm from "./components/SettingsForm";
-import GenerationPanel from "./components/GenerationPanel"; // 画像生成用
-import VideoGenerationPanel from "./components/VideoGenerationPanel"; // 動画生成用 (追加)
+// import ImageUploader from "./components/ImageUploader"; // 削除
+// import SettingsForm from "./components/SettingsForm"; // 削除
+import GenerationTabs from "./components/GenerationTabs"; // タブコンポーネント
 import ResultsGallery from "./components/ResultsGallery";
 import ErrorAlert from "./components/ErrorAlert";
 
@@ -25,16 +24,9 @@ function App() {
       <Header />
 
       <main className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          <div className="space-y-8">
-            <ImageUploader imageType="image" /> {/* imageType を指定 */}
-            <GenerationPanel /> {/* 画像生成 */}
-            <VideoGenerationPanel /> {/* 動画生成 (追加) */}
-          </div>
-
-          <div>
-            <SettingsForm />
-          </div>
+        {/* レイアウトを簡略化: タブが主要コンテンツ */}
+        <div className="mb-8">
+          <GenerationTabs />
         </div>
 
         <ResultsGallery />

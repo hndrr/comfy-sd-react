@@ -7,6 +7,8 @@ interface AppState {
   toggleDarkMode: () => void;
   sourceImage: ImageFile;
   setSourceImage: (image: ImageFile) => void;
+  prompt: string; // 画像生成用プロンプト (追加)
+  setPrompt: (prompt: string) => void; // 画像生成用プロンプト設定 (追加)
   params: ComfyUIParams;
   updateParams: (params: Partial<ComfyUIParams>) => void;
   isGenerating: boolean;
@@ -85,6 +87,9 @@ export const useAppStore = create<AppState>((set) => ({
     preview: "",
   },
   setSourceImage: (image) => set({ sourceImage: image }),
+
+  prompt: DEFAULT_PARAMS.prompt, // 初期値を DEFAULT_PARAMS から取得 (追加)
+  setPrompt: (prompt) => set({ prompt }), // アクションを追加 (追加)
 
   params: DEFAULT_PARAMS,
   updateParams: (newParams) =>
