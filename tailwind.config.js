@@ -35,17 +35,14 @@ export default {
           "100%": { opacity: "1" },
         },
         fadeOut: {
-          // fadeOutキーフレームを追加
           "0%": { opacity: "1" },
           "100%": { opacity: "0" },
         },
         slideIn: {
-          // slideInキーフレームを追加 (右から)
           "0%": { transform: "translateX(100%)", opacity: "0" },
           "100%": { transform: "translateX(0)", opacity: "1" },
         },
         slideOut: {
-          // slideOutキーフレームを追加 (右へ)
           "0%": { transform: "translateX(0)", opacity: "1" },
           "100%": { transform: "translateX(100%)", opacity: "0" },
         },

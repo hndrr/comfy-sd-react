@@ -2,15 +2,12 @@ import React, { useCallback, useRef } from "react";
 import { Upload, X } from "lucide-react";
 import { useAppStore } from "../store/useAppStore";
 import { createPreviewFromFile } from "../utils/imageHelpers";
-// import { ImageFile } from "../types"; // 未使用のためコメントアウト
-
 interface ImageUploaderProps {
-  imageType: "image" | "video"; // 画像生成用か動画生成用かを指定
+  imageType: "image" | "video";
 }
 
 const ImageUploader: React.FC<ImageUploaderProps> = ({ imageType }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  // imageType に応じてストアから適切な状態とアクションを取得
   const { sourceImage, setSourceImage, videoSourceImage, setVideoSourceImage } =
     useAppStore();
 
@@ -24,7 +21,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ imageType }) => {
 
       try {
         const preview = await createPreviewFromFile(file);
-        setImage({ file, preview }); // 適切なアクションを使用
+        setImage({ file, preview });
       } catch (error) {
         console.error("画像のプレビュー作成に失敗しました", error);
       }
@@ -41,12 +38,12 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ imageType }) => {
 
       try {
         const preview = await createPreviewFromFile(file);
-        setImage({ file, preview }); // 適切なアクションを使用
+        setImage({ file, preview });
       } catch (error) {
         console.error("画像のプレビュー作成に失敗しました", error);
       }
     },
-    [setImage] // 依存配列を更新
+    [setImage]
   );
 
   const handleDragOver = useCallback(
@@ -57,11 +54,11 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ imageType }) => {
   );
 
   const handleClear = useCallback(() => {
-    setImage({ file: null, preview: "" }); // 適切なアクションを使用
+    setImage({ file: null, preview: "" });
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
-  }, [setImage]); // 依存配列を更新
+  }, [setImage]);
 
   return (
     <div className="w-full">
@@ -69,7 +66,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ imageType }) => {
         ソース画像
       </h2>
 
-      {!currentImage.preview ? ( // currentImage を使用
+      {!currentImage.preview ? (
         <div
           className="border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg p-8 text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
           onClick={() => fileInputRef.current?.click()}
@@ -91,7 +88,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ imageType }) => {
       ) : (
         <div className="relative rounded-lg overflow-hidden">
           <img
-            src={currentImage.preview} // currentImage を使用
+            src={currentImage.preview}
             alt="アップロードされた画像"
             className="w-full h-auto object-contain rounded-lg"
           />
