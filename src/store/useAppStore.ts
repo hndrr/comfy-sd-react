@@ -39,8 +39,9 @@ interface AppState {
 }
 
 const DEFAULT_PARAMS: ComfyUIParams = {
-  prompt: "写真、高解像度、超詳細、美しい照明",
-  negativePrompt: "低解像度、ぼやけている、ピクセル化、悪い解像度、質の悪い",
+  prompt: "photos, high resolution, super detailed, beautiful lighting",
+  negativePrompt:
+    "Low resolution, blurred, pixelated, poor resolution, poor quality",
   denoiseStrength: 0.7,
   steps: 20,
   cfg: 7,

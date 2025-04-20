@@ -102,24 +102,26 @@ const GenerationPanel: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {" "}
-      {/* space-y を追加 */}
-      {/* 接続状態表示 (オプション) */}
-      <div className="flex items-center justify-end space-x-2">
-        {connectionStatus === "connected" && (
+      {connectionStatus === "connected" && (
+        <div className="flex items-center justify-end space-x-2">
           <span className="flex items-center text-sm text-green-600 dark:text-green-400">
             <span className="w-2 h-2 rounded-full bg-green-500 mr-1.5"></span>
             接続済み
           </span>
-        )}
-        {connectionStatus === "error" && (
+        </div>
+      )}
+      {connectionStatus === "error" && (
+        <div className="flex items-center justify-end space-x-2">
           <span className="flex items-center text-sm text-red-600 dark:text-red-400">
             <AlertTriangle size={14} className="mr-1" />
             接続エラー
           </span>
-        )}
-      </div>
+        </div>
+      )}
       {/* 1. Image Upload */}
+      <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+        Image Generation
+      </h2>
       <ImageUploader imageType="image" /> {/* imageType を指定 */}
       {/* 2. Prompt Input */}
       <PromptInput prompt={prompt} setPrompt={setPrompt} />
