@@ -4,9 +4,10 @@ import Header from "./components/Header";
 import GenerationTabs from "./components/GenerationTabs"; // タブコンポーネント
 import ResultsGallery from "./components/ResultsGallery";
 import ErrorAlert from "./components/ErrorAlert";
+import { ConnectionSettingsPanel } from "./components/ConnectionSettingsPanel"; // パネルをインポート
 
 function App() {
-  const { darkMode } = useAppStore();
+  const { darkMode, isConnectionSettingsOpen } = useAppStore(); // isConnectionSettingsOpen を取得
 
   // ダークモードの適用
   useEffect(() => {
@@ -31,6 +32,9 @@ function App() {
       </main>
 
       <ErrorAlert />
+
+      {/* 接続設定パネルを条件付きでレンダリング */}
+      {isConnectionSettingsOpen && <ConnectionSettingsPanel />}
     </div>
   );
 }
