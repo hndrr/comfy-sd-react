@@ -10,18 +10,16 @@ import SettingsForm from "./SettingsForm"; // 追加
 
 const GenerationPanel: React.FC = () => {
   const {
-    sourceImage, // 画像生成用ソース画像
-    // setSourceImage, // 不要になったため削除
-    // selectedSourceImage, // 不要になったため削除
-    prompt, // 画像生成用プロンプト (追加)
-    params, // 画像生成用パラメータ
+    sourceImage,
+    prompt,
+    params,
     isGenerating,
     setIsGenerating,
     addResult,
     setError,
     setProgress,
-    setPrompt, // 画像生成用プロンプト設定 (追加)
-    updateParams, // 名前をストアに合わせて変更 (setParams -> updateParams)
+    setPrompt,
+    updateParams,
   } = useAppStore();
 
   const [connectionStatus, setConnectionStatus] = useState<

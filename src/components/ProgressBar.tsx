@@ -2,8 +2,14 @@ import React from "react";
 import { useAppStore } from "../store/useAppStore";
 
 const ProgressBar: React.FC = () => {
-  const progress = useAppStore((state) => state.progress);
-  console.log("ProgressBar received progress:", progress); // progress 値をログ出力
+  const activeTab = useAppStore((state) => state.activeTab);
+  const imageProgress = useAppStore((state) => state.progress);
+  const videoProgress = useAppStore((state) => state.videoProgress); // 追加
+
+  // 表示するタブに応じて進捗を選択
+  const progress = activeTab === "video" ? videoProgress : imageProgress;
+
+  console.log(`ProgressBar (${activeTab}) received progress:`, progress); // ログにタブ情報を追加
 
   // progress が null または 0 未満、1 より大きい場合は表示しない
   if (progress === null || progress < 0 || progress > 1) {

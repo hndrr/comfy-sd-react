@@ -35,6 +35,8 @@ interface AppState {
   setGeneratedVideoUrl: (url: string | null) => void;
   videoError: string | null;
   setVideoError: (error: string | null) => void;
+  videoProgress: number | null; // 追加: 動画生成の進捗
+  setVideoProgress: (progress: number | null) => void; // 追加: 動画生成の進捗を更新するアクション
   isConnectionSettingsOpen: boolean;
   toggleConnectionSettings: () => void;
 
@@ -139,6 +141,9 @@ export const useAppStore = create<AppState>((set) => ({
   progress: null,
   setProgress: (progress) => set({ progress }),
 
+  videoProgress: null, // 追加: 動画生成の進捗初期値
+  setVideoProgress: (progress) => set({ videoProgress: progress }), // 追加: 動画生成の進捗更新アクション
+
   videoPrompt: "A cinematic shot of dinosaurs moving violently to intimidate",
   setVideoPrompt: (prompt) => set({ videoPrompt: prompt }),
 
@@ -154,15 +159,24 @@ export const useAppStore = create<AppState>((set) => ({
       isGeneratingVideo: value,
       generatedVideoUrl: null,
       videoError: null,
+      videoProgress: value ? 0 : null, // 追加: 開始時に0、終了時にnull
     }),
 
   generatedVideoUrl: null,
   setGeneratedVideoUrl: (url) =>
-    set({ generatedVideoUrl: url, isGeneratingVideo: false }),
+    set({
+      generatedVideoUrl: url,
+      isGeneratingVideo: false,
+      videoProgress: null, // 追加: 完了時にnull
+    }),
 
   videoError: null,
   setVideoError: (error) =>
-    set({ videoError: error, isGeneratingVideo: false }),
+    set({
+      videoError: error,
+      isGeneratingVideo: false,
+      videoProgress: null, // 追加: エラー時にnull
+    }),
 
   videoSourceImage: {
     file: null,
