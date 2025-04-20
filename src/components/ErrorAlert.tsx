@@ -11,8 +11,7 @@ const ErrorAlert: React.FC<ErrorAlertProps> = ({ message }) => {
 
   // Use provided message if available, otherwise use global error state
   const displayError = message !== undefined ? message : globalError;
-  const clearError =
-    message !== undefined ? () => {} : () => setGlobalError(null); // Only clear global error if using it
+  // Unused clearError variable removed
 
   // If message is explicitly null or undefined, and globalError is also null, don't render
   if (displayError === null || displayError === undefined) return null;

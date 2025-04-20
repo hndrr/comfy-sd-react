@@ -39,6 +39,16 @@ interface AppState {
   // --- Connection Settings Panel State ---
   isConnectionSettingsOpen: boolean;
   toggleConnectionSettings: () => void;
+
+  // --- Image Preview Modal State ---
+  isPreviewModalOpen: boolean;
+  previewImageUrl: string | null;
+  openPreviewModal: (url: string) => void;
+  closePreviewModal: () => void;
+
+  // --- Selected Source Image for Video ---
+  selectedSourceImage: string | null; // 選択されたソース画像のURL
+  setSelectedSourceImage: (imageUrl: string | null) => void; // ソース画像選択アクション
 }
 
 const DEFAULT_PARAMS: ComfyUIParams = {
@@ -176,4 +186,16 @@ export const useAppStore = create<AppState>((set) => ({
     set((state) => ({
       isConnectionSettingsOpen: !state.isConnectionSettingsOpen,
     })),
+
+  // --- Image Preview Modal Actions ---
+  isPreviewModalOpen: false,
+  previewImageUrl: null,
+  openPreviewModal: (url) =>
+    set({ isPreviewModalOpen: true, previewImageUrl: url }),
+  closePreviewModal: () =>
+    set({ isPreviewModalOpen: false, previewImageUrl: null }),
+
+  // --- Selected Source Image Actions ---
+  selectedSourceImage: null, // 初期値は null
+  setSelectedSourceImage: (imageUrl) => set({ selectedSourceImage: imageUrl }),
 }));

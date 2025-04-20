@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react"; // useEffect をインポート
 import ImageUploader from "./ImageUploader"; // 既存コンポーネント
 import PromptInput from "./PromptInput"; // 新規
 import ParameterSettings from "./ParameterSettings"; // 新規
@@ -11,9 +11,11 @@ import { comfyUIApi } from "../services/api"; // APIサービス
 
 const VideoGenerationPanel: React.FC = () => {
   const {
-    videoSourceImage, // videoSourceImage を使用
-    videoPrompt, // 状態管理から取得 (新規)
-    videoGenerationParams, // 状態管理から取得 (新規)
+    videoSourceImage,
+    setVideoSourceImage, // setVideoSourceImage を追加
+    selectedSourceImage, // selectedSourceImage を追加
+    videoPrompt,
+    videoGenerationParams,
     isGeneratingVideo, // 状態管理から取得 (新規)
     generatedVideoUrl, // 状態管理から取得 (新規)
     videoError, // 状態管理から取得 (新規)
@@ -24,8 +26,41 @@ const VideoGenerationPanel: React.FC = () => {
     setGeneratedVideoUrl, // 状態管理アクション (新規)
     setVideoError, // 状態管理アクション (新規)
     // setProgress, // WebSocket実装後に有効化
-    // progress, // WebSocket実装後に有効化
+    // progress,
   } = useAppStore();
+
+  // selectedSourceImage が変更されたら videoSourceImage を更新する Effect
+  useEffect(() => {
+    if (selectedSourceImage) {
+      const fetchImageAndSetFile = async () => {
+        try {
+          const response = await fetch(selectedSourceImage);
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const blob = await response.blob();
+          // ファイル名をURLから推測するか、デフォルト名を付ける
+          const fileName =
+            selectedSourceImage.split("/").pop() || "selected_source.png";
+          const file = new File([blob], fileName, { type: blob.type });
+          setVideoSourceImage({ file, preview: selectedSourceImage });
+        } catch (error) {
+          console.error(
+            "Error fetching or creating file from selected image:",
+            error
+          );
+          // エラー処理: ユーザーに通知するなど
+          setVideoError("Failed to load the selected source image.");
+        }
+      };
+      fetchImageAndSetFile();
+    }
+    // selectedSourceImage が null になった場合（例えばクリア機能を追加した場合）は
+    // videoSourceImage もリセットするかどうかを検討
+    // else {
+    //   setVideoSourceImage({ file: null, preview: "" });
+    // }
+  }, [selectedSourceImage, setVideoSourceImage, setVideoError]); // 依存配列に setVideoError を追加
 
   const handleGenerateClick = async () => {
     if (!videoSourceImage.file) {
@@ -79,8 +114,8 @@ const VideoGenerationPanel: React.FC = () => {
       <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">
         Video Generation
       </h2>
-      {/* 1. Image Upload */}
-      <ImageUploader imageType="video" /> {/* imageType を指定 */}
+      {/* 1. Image Upload - image プロパティは不要 */}
+      <ImageUploader imageType="video" />
       {/* 2. Prompt Input */}
       <PromptInput prompt={videoPrompt} setPrompt={setVideoPrompt} />
       {/* 3. Parameter Settings */}
