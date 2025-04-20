@@ -39,9 +39,28 @@ const VideoGenerationPanel: React.FC = () => {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
           const blob = await response.blob();
-          // ファイル名をURLから推測するか、デフォルト名を付ける
-          const fileName =
-            selectedSourceImage.split("/").pop() || "selected_source.png";
+          // ファイル名をURLのクエリパラメータから取得
+          let fileName = "selected_source.png"; // デフォルトファイル名
+          try {
+            const url = new URL(selectedSourceImage);
+            const params = new URLSearchParams(url.search);
+            const filenameFromUrl = params.get("filename");
+            if (filenameFromUrl) {
+              fileName = filenameFromUrl;
+            } else {
+              // filenameパラメータがない場合、パスの最後の部分を試す (フォールバック)
+              const pathPart = url.pathname.split("/").pop();
+              if (pathPart) {
+                fileName = pathPart;
+              }
+            }
+          } catch (e) {
+            console.error("Error parsing URL for filename:", e);
+            // URL解析に失敗した場合、既存のロジックをフォールバックとして使用
+            fileName =
+              selectedSourceImage.split("/").pop() || "selected_source.png";
+          }
+
           const file = new File([blob], fileName, { type: blob.type });
           setVideoSourceImage({ file, preview: selectedSourceImage });
         } catch (error) {
