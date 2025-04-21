@@ -62,13 +62,10 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ imageType }) => {
 
   return (
     <div className="w-full">
-      <h2 className="text-lg font-medium mb-2 text-gray-900 dark:text-white">
-        ソース画像
-      </h2>
-
+      <h2 className="font-medium text-gray-900 dark:text-white">ソース画像</h2>
       {!currentImage.preview ? (
         <div
-          className="border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg p-8 text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+          className="border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg p-8 text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors h-[350px] justify-center flex flex-col"
           onClick={() => fileInputRef.current?.click()}
           onDrop={handleDrop}
           onDragOver={handleDragOver}
@@ -77,7 +74,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ imageType }) => {
           <p className="mt-2 text-gray-600 dark:text-gray-400">
             画像をドラッグ＆ドロップ、または
             <span className="text-blue-600 dark:text-blue-400 font-medium">
-              {" "}
               クリックして選択
             </span>
           </p>

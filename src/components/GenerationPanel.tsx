@@ -120,66 +120,65 @@ const GenerationPanel: React.FC = () => {
           </span>
         </div>
       )}
-      {/* 1. Image Upload */}
+
       <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
         Image Generation
       </h2>
-      <ImageUploader imageType="image" /> {/* imageType を指定 */}
-      {/* 2. Prompt Input */}
-      <PromptInput prompt={prompt} setPrompt={setPrompt} />
-      {/* Negative Prompt Input */}
-      <div>
-        <label
-          htmlFor="negativePromptPanel" // IDを他と区別
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-        >
-          ネガティブプロンプト
-        </label>
-        <textarea
-          id="negativePromptPanel"
-          rows={2}
-          value={params.negativePrompt}
-          onChange={(e) => updateParams({ negativePrompt: e.target.value })}
-          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-          placeholder="避けたい特徴を入力してください..."
-        />
+      <div className="grid grid-cols-2 gap-4">
+        <ImageUploader imageType="image" />
+        <div className="space-y-6">
+          <PromptInput prompt={prompt} setPrompt={setPrompt} />
+          <div>
+            <label
+              htmlFor="negativePromptPanel" // IDを他と区別
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
+              ネガティブプロンプト
+            </label>
+            <textarea
+              id="negativePromptPanel"
+              rows={2}
+              value={params.negativePrompt}
+              onChange={(e) => updateParams({ negativePrompt: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+              placeholder="避けたい特徴を入力してください..."
+            />
+          </div>
+          <SettingsForm />
+          <div className="text-center">
+            <button
+              type="button"
+              onClick={handleGenerate}
+              disabled={isGenerating || !sourceImage.file}
+              className={`w-full flex items-center justify-center space-x-2 px-4 py-3 rounded-lg font-medium transition-colors ${
+                isGenerating || !sourceImage.file
+                  ? "bg-gray-200 text-gray-500 dark:bg-gray-800 dark:text-gray-400 cursor-not-allowed"
+                  : "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+              }`}
+            >
+              {isGenerating ? (
+                <>
+                  <Loader size={20} className="animate-spin" />
+                  <span>処理中...</span>
+                </>
+              ) : (
+                <>
+                  <Play size={20} />
+                  <span>画像を生成</span>
+                </>
+              )}
+            </button>
+          </div>
+          {/* 5. Progress Bar */}
+          {isGenerating && <ProgressBar />}
+          {/* パラメータ表示 (オプション) */}
+          {/* <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+              ノイズ強度: {params.denoiseStrength.toFixed(2)} | ステップ:{" "}
+              {params.steps} | CFG: {params.cfg.toFixed(1)} | サンプラー:{" "}
+              {params.sampler}
+            </p> */}
+        </div>
       </div>
-      {/* 3. Parameter Settings */}
-      {/* SettingsForm は params と setParams を内部で useAppStore から取得するため、props は不要 */}
-      <SettingsForm />
-      {/* 4. Generate Button */}
-      <div className="text-center">
-        <button
-          type="button"
-          onClick={handleGenerate}
-          disabled={isGenerating || !sourceImage.file}
-          className={`w-full flex items-center justify-center space-x-2 px-4 py-3 rounded-lg font-medium transition-colors ${
-            isGenerating || !sourceImage.file
-              ? "bg-gray-200 text-gray-500 dark:bg-gray-800 dark:text-gray-400 cursor-not-allowed"
-              : "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
-          }`}
-        >
-          {isGenerating ? (
-            <>
-              <Loader size={20} className="animate-spin" />
-              <span>処理中...</span>
-            </>
-          ) : (
-            <>
-              <Play size={20} />
-              <span>画像を生成</span>
-            </>
-          )}
-        </button>
-      </div>
-      {/* 5. Progress Bar */}
-      {isGenerating && <ProgressBar />}
-      {/* パラメータ表示 (オプション) */}
-      {/* <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-        ノイズ強度: {params.denoiseStrength.toFixed(2)} | ステップ:{" "}
-        {params.steps} | CFG: {params.cfg.toFixed(1)} | サンプラー:{" "}
-        {params.sampler}
-      </p> */}
     </div>
   );
 };
