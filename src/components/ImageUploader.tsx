@@ -2,6 +2,7 @@ import { Camera, Upload, X } from "lucide-react"; // Camera アイコンを追�
 import React, { useCallback, useEffect, useRef, useState } from "react"; // useEffect をインポート
 import { useAppStore } from "../store/useAppStore";
 import { createPreviewFromFile } from "../utils/imageHelpers";
+
 interface ImageUploaderProps {
   imageType: "image" | "video";
 }
@@ -13,6 +14,8 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ imageType }) => {
   const streamRef = useRef<MediaStream | null>(null);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
+  const [cameraDevices, setCameraDevices] = useState<MediaDeviceInfo[]>([]); // カメラデバイスリスト
+  const [selectedDeviceId, setSelectedDeviceId] = useState<string>(''); // 選択中のデバイスID
 
   const { sourceImage, setSourceImage, videoSourceImage, setVideoSourceImage } =
     useAppStore();
@@ -28,10 +31,14 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ imageType }) => {
       streamRef.current = null;
     }
     if (videoRef.current) {
-      videoRef.current.srcObject = null;
+      // videoRef.current.srcObject = null; // srcObjectをnullにするとエラーになることがあるためコメントアウト
+      // 代わりにトラックを停止することで映像を止める
     }
     setIsCameraOpen(false);
     setCameraError(null);
+    // カメラを閉じたらデバイスリストもクリア
+    setCameraDevices([]);
+    setSelectedDeviceId('');
   }, []);
 
   // startCamera は isCameraOpen を true にするだけ
@@ -40,32 +47,88 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ imageType }) => {
     setIsCameraOpen(true);
   }, []);
 
-  // isCameraOpen が true になったらカメラを起動する useEffect
+  // isCameraOpen が true になったらカメラデバイスを取得する useEffect
   useEffect(() => {
-    // isCameraOpen が false または videoRef がまだ存在しない場合は何もしない
-    if (!isCameraOpen || !videoRef.current) {
+    if (!isCameraOpen) {
+      return; // カメラが閉じていれば何もしない
+    }
+
+    // カメラデバイスを取得
+    const getCameraDevices = async () => {
+      try {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
+           throw new Error("カメラデバイスのリスト取得がサポートされていません。");
+        }
+        // 権限がないと enumerateDevices は空のリストやラベルなしのリストを返すことがあるため、
+        // 先に getUserMedia で権限を要求する（startCamera -> isCameraOpen=true の流れで権限要求は試みられているはず）
+        await navigator.mediaDevices.getUserMedia({ video: true, audio: false }); // ダミーで権限要求
+
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoDevices = devices.filter(device => device.kind === 'videoinput');
+        setCameraDevices(videoDevices);
+
+        if (videoDevices.length > 0) {
+          // 選択中のデバイスIDがリストにない場合、または未選択の場合、最初のデバイスを選択
+          if (!selectedDeviceId || !videoDevices.some(d => d.deviceId === selectedDeviceId)) {
+            setSelectedDeviceId(videoDevices[0].deviceId);
+          }
+        } else {
+           throw new Error("利用可能なカメラが見つかりませんでした。");
+        }
+      } catch (err) {
+        console.error("Failed to get camera devices:", err);
+        setCameraError(err instanceof Error ? err.message : "カメラデバイスの取得に失敗しました。");
+        stopCamera(); // エラー時はカメラを閉じる
+      }
+    };
+
+    getCameraDevices();
+
+  }, [isCameraOpen, stopCamera]); // isCameraOpen が変更されたときのみ実行
+
+
+  // isCameraOpen または selectedDeviceId が変更されたら、カメラストリームを初期化/再初期化する useEffect
+  useEffect(() => {
+    // カメラが開いていない、デバイスが選択されていない、またはビデオ要素がなければ何もしない
+    if (!isCameraOpen || !selectedDeviceId || !videoRef.current) {
       return;
     }
 
-    let currentStream: MediaStream | null = null; // クリーンアップ用にストリームを保持
-    const videoElement = videoRef.current; // useEffect内で参照を固定
+    let currentStream: MediaStream | null = null;
+    const videoElement = videoRef.current;
+    let cancelled = false; // クリーンアップ処理用フラグ
 
-    const initializeCamera = async () => {
+    const initializeVideoStream = async () => {
+      // 既存のストリームがあれば停止（カメラ切り替えのため）
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+      }
+
       try {
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-          console.error("mediaDevices or getUserMedia not supported");
           throw new Error("カメラ機能はこのブラウザではサポートされていません。");
         }
 
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        currentStream = stream; // クリーンアップ用に保持
-        streamRef.current = stream; // Refにも保持
+        // 選択されたデバイスIDでストリームを取得
+        const constraints: MediaStreamConstraints = {
+          video: { deviceId: { exact: selectedDeviceId } }
+        };
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
 
+        if (cancelled) { // ストリーム取得中にキャンセルされた場合
+          stream.getTracks().forEach(track => track.stop());
+          return;
+        }
+
+        currentStream = stream;
+        streamRef.current = stream;
         videoElement.srcObject = stream;
 
         // メタデータ読み込みハンドラ
         const handleMetadataLoaded = () => {
+          if (cancelled) return;
           videoElement.play().catch(err => {
+            if (cancelled) return;
             console.error("Video playback failed:", err);
             setCameraError("ビデオの再生に失敗しました。ページをリロードするか、ブラウザの設定を確認してください。");
             stopCamera();
@@ -74,53 +137,81 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ imageType }) => {
 
         // エラーハンドラ
         const handleError = (e: Event) => {
+          if (cancelled) return;
           console.error("Video element error:", e);
           setCameraError("ビデオ要素の読み込み中にエラーが発生しました。");
           stopCamera();
         };
 
-        // イベントリスナーを設定
+        // イベントリスナーを設定 (クリーンアップで削除するため、関数参照を保持)
         videoElement.addEventListener('loadedmetadata', handleMetadataLoaded);
         videoElement.addEventListener('error', handleError);
+
+        // クリーンアップ関数内でリスナーを削除
+        return () => {
+          videoElement.removeEventListener('loadedmetadata', handleMetadataLoaded);
+          videoElement.removeEventListener('error', handleError);
+        };
+
       } catch (err) {
+        if (cancelled) return;
         console.error("Failed to access or process camera:", err);
         let message = "カメラへのアクセスまたは処理中にエラーが発生しました。";
         if (err instanceof DOMException) {
           if (err.name === "NotAllowedError") {
             message = "カメラへのアクセスが許可されていません。ブラウザの設定を確認してください。";
           } else if (err.name === "NotFoundError") {
-            message = "利用可能なカメラが見つかりませんでした。";
+            message = "指定されたカメラが見つからないか、アクセスできません。";
+          } else if (err.name === "NotReadableError") {
+             message = "カメラは他のアプリケーションで使用されている可能性があります。";
+          } else if (err.name === "OverconstrainedError") {
+             message = "指定されたカメラ解像度などがサポートされていません。";
           }
         } else if (err instanceof Error) {
           message = err.message;
         }
         setCameraError(message);
         stopCamera(); // エラー発生時にカメラUIを閉じる
+        return () => {}; // クリーンアップ関数を返す
       }
     };
 
-    initializeCamera();
+    let removeListeners: (() => void) | undefined;
+    initializeVideoStream().then(cleanup => {
+      removeListeners = cleanup; // イベントリスナー削除関数を保持
+    });
 
+    // クリーンアップ関数
     return () => {
+      cancelled = true; // キャンセルフラグを立てる
+      if (removeListeners) {
+        removeListeners(); // イベントリスナーを削除
+      }
+      // ストリームを停止
       if (currentStream) {
         currentStream.getTracks().forEach((track) => track.stop());
       }
-      if (videoElement.srcObject) {
-         videoElement.srcObject = null;
+      // srcObjectをnullに設定 (stopCameraでも行うが念のため)
+      if (videoElement && videoElement.srcObject) {
+         // videoElement.srcObject = null; // これもエラーの原因になることがある
       }
       streamRef.current = null;
     };
-  }, [isCameraOpen, stopCamera]); // isCameraOpen と stopCamera に依存
+  }, [isCameraOpen, selectedDeviceId, stopCamera]); // isCameraOpen, selectedDeviceId, stopCamera に依存
 
 
   const handleCapture = useCallback(async () => {
     if (videoRef.current && canvasRef.current) {
       const video = videoRef.current;
       const canvas = canvasRef.current;
+      // ビデオの実際の表示サイズではなく、ネイティブ解像度を使う
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       const context = canvas.getContext("2d");
       if (context) {
+        // 左右反転する場合 (多くのWebカメラはデフォルトで反転しているため)
+        // context.translate(canvas.width, 0);
+        // context.scale(-1, 1);
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
         canvas.toBlob(async (blob) => {
           if (blob) {
@@ -146,7 +237,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ imageType }) => {
   }, [setImage, stopCamera]);
 
   const handleCameraClick = () => {
-    startCamera(); // isCameraOpen を true に設定する
+    startCamera();
   };
 
   const handleCancelCamera = () => {
@@ -204,17 +295,39 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ imageType }) => {
     <div className="w-full">
       <h2 className="font-medium text-gray-900 dark:text-white mb-2">Source Image</h2>
       {isCameraOpen && (
-        <div className="border border-gray-300 dark:border-gray-700 rounded-lg p-4 flex flex-col items-center h-[450px]">
-           <div className="relative w-full flex-grow mb-4 rounded-md overflow-hidden">
+        <div className="border border-gray-300 dark:border-gray-700 rounded-lg p-4 flex flex-col items-center h-auto"> {/* 高さをautoに */}
+           {/* カメラ選択ドロップダウン (カメラが複数ある場合) */}
+           {cameraDevices.length > 1 && (
+             <div className="w-full mb-2">
+               <label htmlFor="camera-select" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                 カメラ選択:
+               </label>
+               <select
+                 id="camera-select"
+                 value={selectedDeviceId}
+                 onChange={(e) => setSelectedDeviceId(e.target.value)}
+                 className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+               >
+                 {cameraDevices.map((device) => (
+                   <option key={device.deviceId} value={device.deviceId}>
+                     {device.label || `カメラ ${cameraDevices.indexOf(device) + 1}`}
+                   </option>
+                 ))}
+               </select>
+             </div>
+           )}
+           {/* カメラ映像 */}
+           <div className="relative w-full h-[350px] mb-4 rounded-md overflow-hidden bg-gray-900"> {/* 高さを固定し背景色を設定 */}
              <video
                ref={videoRef}
-               className="w-full h-full object-cover"
+               className="w-full h-full object-cover" // object-coverでアスペクト比維持しつつ埋める
                playsInline
                autoPlay
                muted
              />
              <canvas ref={canvasRef} className="hidden"></canvas>
            </div>
+           {/* 操作ボタン */}
            <div className="flex gap-4 w-full">
              <button
                type="button"
