@@ -28,14 +28,9 @@ const ParameterSettings: React.FC<ParameterSettingsProps> = ({
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
-      {" "}
-      {/* ボーダー色追加 */}
       <h3 className="col-span-full text-lg font-medium mb-2 text-gray-900 dark:text-white">
-        {" "}
-        {/* 文字色追加 */}
         Generation Parameters
       </h3>
-      {/* Steps */}
       <div>
         <label
           htmlFor="steps"
@@ -55,7 +50,6 @@ const ParameterSettings: React.FC<ParameterSettingsProps> = ({
           className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" // ダークモードスタイル追加
         />
       </div>
-      {/* CFG Scale */}
       <div>
         <label
           htmlFor="cfgScale"
@@ -75,7 +69,6 @@ const ParameterSettings: React.FC<ParameterSettingsProps> = ({
           className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" // ダークモードスタイル追加
         />
       </div>
-      {/* Motion Strength */}
       <div>
         <label
           htmlFor="motionStrength"
@@ -95,7 +88,6 @@ const ParameterSettings: React.FC<ParameterSettingsProps> = ({
           className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" // ダークモードスタイル追加
         />
       </div>
-      {/* FPS */}
       <div>
         <label
           htmlFor="fps"
@@ -115,7 +107,6 @@ const ParameterSettings: React.FC<ParameterSettingsProps> = ({
           className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" // ダークモードスタイル追加
         />
       </div>
-      {/* Seed */}
       <div>
         <label
           htmlFor="seed"
@@ -134,7 +125,6 @@ const ParameterSettings: React.FC<ParameterSettingsProps> = ({
           className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" // ダークモードスタイル追加
         />
       </div>
-      {/* Total Second Length */}
       <div>
         <label
           htmlFor="total_second_length"
@@ -148,7 +138,7 @@ const ParameterSettings: React.FC<ParameterSettingsProps> = ({
           id="total_second_length"
           value={params.total_second_length}
           onChange={handleChange}
-          min="1" // Example min value
+          min="1"
           step="1"
           className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" // ダークモードスタイル追加
         />
