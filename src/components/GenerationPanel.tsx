@@ -54,9 +54,12 @@ const GenerationPanel: React.FC = () => {
     setError(null);
 
     try {
+      // 現在のプロンプトをパラメータに含める
+      const currentParams = { ...params, prompt: prompt };
+
       const result = await comfyUIApi.processImage(
         sourceImage.file,
-        params,
+        currentParams, // 更新されたパラメータを使用
         setProgress
       );
 
