@@ -1,7 +1,7 @@
 import axios from "axios";
-import { ComfyUIParams, ApiResponse, GenerationResult } from "../types";
-import { useAppStore } from "../store/useAppStore";
 import { GenerationParams as VideoGenerationParams } from "../components/ParameterSettings";
+import { useAppStore } from "../store/useAppStore";
+import { ApiResponse, ComfyUIParams, GenerationResult } from "../types";
 import videoWorkflowTemplate from "./videoWorkflowTemplate.json";
 
 // --- Helper Type Definitions ---
@@ -125,6 +125,7 @@ export const comfyUIApi = {
       }
       const uploadedImageName = uploadResponse.data.name;
       const imagePath = uploadedImageName;
+      console.log("[generateVideo] Image uploaded:", imagePath); // Log uploaded image path
 
       const workflow = buildVideoWorkflow(imagePath, prompt, videoParams);
       console.log(
@@ -134,6 +135,7 @@ export const comfyUIApi = {
       const promptResponse = await axios.post(`${apiUrl}/prompt`, {
         prompt: workflow,
       });
+      console.log("[generateVideo] Prompt API response:", promptResponse.data); // Log prompt API response
 
       if (!promptResponse.data || !promptResponse.data.prompt_id) {
         return {
@@ -142,19 +144,32 @@ export const comfyUIApi = {
         };
       }
       const promptId = promptResponse.data.prompt_id;
+      console.log("[generateVideo] Prompt ID:", promptId); // Log prompt ID
       const result = await waitForVideoProcessing(apiUrl, promptId, onProgress);
+      console.log("[generateVideo] waitForVideoProcessing result:", result); // Log result from waiter
+
+      // waitForVideoProcessing から videoUrl を受け取る
+      const { videoUrl } = result;
 
       const generationResult: GenerationResult = {
         id: promptId,
-        imageUrl: result,
+        // imageUrl: result, // imageUrl は削除
+        videoUrl: videoUrl,
+        // thumbnailUrl は削除
         prompt: prompt,
         params: videoParams,
         timestamp: Date.now(),
         type: "video",
       };
+      // ストアの addResult を直接呼び出すのではなく、結果オブジェクトを返す
+      // useAppStore.getState().addResult(generationResult); // ここでは呼ばない
       return { status: "success", data: generationResult };
     } catch (error) {
-      console.error("動画生成に失敗しました", error);
+      // Log the detailed error
+      console.error("[generateVideo] Error during video generation:", error);
+      if (axios.isAxiosError(error)) {
+        console.error("[generateVideo] Axios error details:", error.response?.data);
+      }
       const errorMessage =
         error instanceof Error
           ? error.message
@@ -503,11 +518,12 @@ async function waitForProcessing(
   });
 }
 
+// 戻り値の型を videoUrl のみ含むオブジェクトに変更
 async function waitForVideoProcessing(
   apiUrl: string,
   promptId: string,
   onProgress?: (progress: number | null) => void
-): Promise<string> {
+): Promise<{ videoUrl: string }> {
   // Returns video URL
   return new Promise((resolve, reject) => {
     const ws = new WebSocket(
@@ -524,10 +540,11 @@ async function waitForVideoProcessing(
     };
 
     ws.onmessage = async (event) => {
-      // Handle only string data as JSON
-      if (typeof event.data === "string") {
-        const message = JSON.parse(event.data);
-        // console.log("Video WS Message:", message); // Optional: Log only parsed messages
+      try { // Add try-catch around message handling
+        // Handle only string data as JSON
+        if (typeof event.data === "string") {
+          const message = JSON.parse(event.data);
+          console.log("[waitForVideoProcessing] WS Message:", message); // Log all messages
 
         if (message.type === "progress") {
           const progressValue = message.data.value / message.data.max;
@@ -549,12 +566,16 @@ async function waitForVideoProcessing(
             const historyResponse = await axios.get(
               `${apiUrl}/history/${promptId}`
             );
+            console.log("[waitForVideoProcessing] History API response:", historyResponse.data); // Log history API response
             const historyData = historyResponse.data[promptId];
             const outputs = historyData?.outputs;
+            console.log("[waitForVideoProcessing] History outputs:", outputs); // Log extracted outputs
 
             if (outputs) {
-              const videoCombineNodeId = "23";
+              // --- 動画URLの取得 ---
+              const videoCombineNodeId = "23"; // VHS_VideoCombine node ID
               const videoData = outputs[videoCombineNodeId];
+              console.log(`[waitForVideoProcessing] Output for node ${videoCombineNodeId}:`, videoData); // Log video node output
 
               // Check for both 'videos' and 'gifs' arrays
               const outputArray = videoData?.videos || videoData?.gifs;
@@ -567,8 +588,10 @@ async function waitForVideoProcessing(
                   videoInfo.filename
                 )}&type=${type}&subfolder=${videoInfo.subfolder || ""}`;
                 ws.close();
-                resolve(videoUrl);
+                // videoUrl のみ含むオブジェクトで resolve する
+                resolve({ videoUrl });
               } else {
+                console.error("[waitForVideoProcessing] Video data (videos/gifs array) not found in VHS_VideoCombine output:", videoData); // Log error finding video data
                 ws.close(); // Close WS before rejecting
                 reject(
                   "生成された動画が見つかりませんでした (VHS_VideoCombine output: videos/gifs array not found or empty)"
@@ -576,12 +599,12 @@ async function waitForVideoProcessing(
               }
             } else {
               ws.close(); // Close WS before rejecting
-              reject("動画処理結果が見つかりませんでした (History API)");
+              reject("動画処理結果が見つかりませんでした (History API outputs missing)");
             }
           } catch (error) {
-            console.error("動画履歴の取得に失敗しました", error);
+            console.error("[waitForVideoProcessing] Error fetching or parsing history:", error); // Log history fetch/parse error
             ws.close(); // Ensure WS is closed on error
-            reject("動画履歴の取得に失敗しました");
+            reject("動画履歴の取得または解析に失敗しました");
           }
           // Removed finally block as ws.close() is handled in try/catch/reject paths
         } else if (message.type === "error") {
@@ -589,13 +612,19 @@ async function waitForVideoProcessing(
           clearTimeout(timeoutId);
           if (onProgress) onProgress(null);
           ws.close();
-          reject(`動画生成エラー: ${message.data.message || "Unknown error"}`);
+          const errorMsg = message.data.message || "Unknown error";
+          console.error("[waitForVideoProcessing] WebSocket error message:", message.data); // Log WS error details
+          reject(`動画生成エラー: ${errorMsg}`);
         }
-        // Close the 'if (typeof event.data === 'string')' block
       } else {
         // Optional: Log if binary data is received
-        // console.log("Received binary WebSocket message.");
+        // console.log("[waitForVideoProcessing] Received binary WebSocket message.");
       }
+    } catch (parseError) { // Catch JSON parsing errors or other errors in message handler
+        console.error("[waitForVideoProcessing] Error handling WebSocket message:", parseError, "Raw data:", event.data);
+        // Optionally reject or just log, depending on desired behavior
+        // reject("WebSocketメッセージの処理中にエラーが発生しました");
+    }
     };
 
     ws.onerror = (error) => {

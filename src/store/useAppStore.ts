@@ -1,6 +1,6 @@
 import { create } from "zustand";
-import { ImageFile, ComfyUIParams, GenerationResult } from "../types";
 import { GenerationParams as VideoGenerationParams } from "../components/ParameterSettings";
+import { ComfyUIParams, GenerationResult, ImageFile } from "../types";
 
 interface AppState {
   darkMode: boolean;
@@ -31,11 +31,11 @@ interface AppState {
   setVideoSourceImage: (image: ImageFile) => void;
   isGeneratingVideo: boolean;
   setIsGeneratingVideo: (value: boolean) => void;
-  generatedVideoUrl: string | null;
-  setGeneratedVideoUrl: (url: string | null) => void;
+  // generatedVideoUrl: string | null; // 不要になるため削除
+  // setGeneratedVideoUrl: (url: string | null) => void; // 不要になるため削除
   videoError: string | null;
   setVideoError: (error: string | null) => void;
-  videoProgress: number | null; // 追加: 動画生成の進捗
+  videoProgress: number | null; // 動画生成の進捗
   setVideoProgress: (progress: number | null) => void; // 追加: 動画生成の進捗を更新するアクション
   isConnectionSettingsOpen: boolean;
   toggleConnectionSettings: () => void;
@@ -44,9 +44,15 @@ interface AppState {
   previewImageUrl: string | null;
   openPreviewModal: (url: string) => void;
   closePreviewModal: () => void;
-
-  selectedSourceImage: string | null;
-  setSelectedSourceImage: (imageUrl: string | null) => void;
+ 
+  // 動画プレビューモーダル用 state と アクション
+  isVideoPreviewModalOpen: boolean;
+  previewVideoUrl: string | null;
+  openVideoPreviewModal: (url: string) => void;
+  closeVideoPreviewModal: () => void;
+ 
+  selectedSourceImage: string | null; // これは画像生成のソース選択用？ 一旦残す
+  setSelectedSourceImage: (imageUrl: string | null) => void; // 同上
 
   activeTab: "image" | "video";
   setActiveTab: (tab: "image" | "video") => void;
@@ -114,11 +120,20 @@ export const useAppStore = create<AppState>((set) => ({
     set({ isGenerating: value, progress: value ? 0 : null, error: null }),
 
   results: loadResults(),
-  addResult: (result) => {
+  addResult: (result: GenerationResult) => { // 型を明示
     set((state) => {
       const newResults = [result, ...state.results];
       saveResults(newResults);
-      return { results: newResults, isGenerating: false, progress: null };
+      // 結果のタイプに応じて、対応する生成中フラグとプログレスをリセット
+      const updates: Partial<AppState> = { results: newResults };
+      if (result.type === "image") {
+        updates.isGenerating = false;
+        updates.progress = null;
+      } else if (result.type === "video") {
+        updates.isGeneratingVideo = false;
+        updates.videoProgress = null;
+      }
+      return updates;
     });
   },
   removeResult: (id) => {
@@ -157,21 +172,21 @@ export const useAppStore = create<AppState>((set) => ({
   setIsGeneratingVideo: (value) =>
     set({
       isGeneratingVideo: value,
-      generatedVideoUrl: null,
+      // generatedVideoUrl: null, // 削除
       videoError: null,
-      videoProgress: value ? 0 : null, // 追加: 開始時に0、終了時にnull
+      videoProgress: value ? 0 : null, // 開始時に0、終了/エラー時にnull (addResult/setVideoErrorで処理)
     }),
 
-  generatedVideoUrl: null,
-  setGeneratedVideoUrl: (url) =>
-    set({
-      generatedVideoUrl: url,
-      isGeneratingVideo: false,
-      videoProgress: null, // 追加: 完了時にnull
-    }),
-
+  // generatedVideoUrl: null, // 削除
+  // setGeneratedVideoUrl: (url) => // 削除 (addResult で結果を追加)
+  //   set({
+  //     // generatedVideoUrl: url, // 削除
+  //     isGeneratingVideo: false,
+  //     videoProgress: null,
+  //   }),
+ 
   videoError: null,
-  setVideoError: (error) =>
+  setVideoError: (error) => // エラー発生時に isGeneratingVideo と progress をリセット
     set({
       videoError: error,
       isGeneratingVideo: false,
@@ -196,7 +211,15 @@ export const useAppStore = create<AppState>((set) => ({
     set({ isPreviewModalOpen: true, previewImageUrl: url }),
   closePreviewModal: () =>
     set({ isPreviewModalOpen: false, previewImageUrl: null }),
-
+ 
+  // 動画プレビューモーダル用 state と アクションの実装
+  isVideoPreviewModalOpen: false,
+  previewVideoUrl: null,
+  openVideoPreviewModal: (url) =>
+    set({ isVideoPreviewModalOpen: true, previewVideoUrl: url }),
+  closeVideoPreviewModal: () =>
+    set({ isVideoPreviewModalOpen: false, previewVideoUrl: null }),
+ 
   selectedSourceImage: null,
   setSelectedSourceImage: (imageUrl) => set({ selectedSourceImage: imageUrl }),
 
