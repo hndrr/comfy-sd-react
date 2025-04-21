@@ -19,12 +19,28 @@ const samplers = [
 ];
 
 const SettingsForm: React.FC = () => {
-  const { params, updateParams } = useAppStore();
+  // useAppStore からモデル関連の状態とアクションを取得
+  const {
+    params,
+    updateParams,
+    checkpointList,
+    loraList,
+    selectedCheckpoint,
+    selectedLora,
+    loraStrength,
+    setSelectedCheckpoint,
+    setSelectedLora,
+    setLoraStrength,
+    modelListError, // エラー表示用
+  } = useAppStore();
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   const handleRandomSeed = () => {
     updateParams({ seed: generateRandomSeed() });
   };
+
+  // LoRAが選択されているかどうかの判定
+  const isLoraSelected = selectedLora && selectedLora !== "None";
 
   return (
     <div className="w-full space-y-6">
@@ -32,7 +48,89 @@ const SettingsForm: React.FC = () => {
         生成パラメータ
       </h2>
 
+      {/* モデルリスト取得エラー表示 */}
+      {modelListError && (
+        <div className="p-3 bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-700 rounded-md text-red-700 dark:text-red-200 text-sm">
+          {modelListError}
+        </div>
+      )}
+
       <div className="space-y-4">
+        {/* --- モデル選択 UI --- */}
+        <div>
+          <label
+            htmlFor="checkpoint"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+          >
+            チェックポイントモデル
+          </label>
+          <select
+            id="checkpoint"
+            value={selectedCheckpoint ?? ""} // null の場合は空文字
+            onChange={(e) => setSelectedCheckpoint(e.target.value || null)}
+            disabled={checkpointList.length === 0} // リストが空なら無効化
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white disabled:opacity-50"
+          >
+            {checkpointList.length === 0 && <option>読み込み中...</option>}
+            {checkpointList.map((ckpt) => (
+              <option key={ckpt} value={ckpt}>
+                {ckpt}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label
+            htmlFor="lora"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+          >
+            LoRAモデル
+          </label>
+          <select
+            id="lora"
+            value={selectedLora ?? "None"} // null の場合は "None"
+            onChange={(e) => setSelectedLora(e.target.value)}
+            disabled={loraList.length <= 1} // "None" しかない場合は無効化
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white disabled:opacity-50"
+          >
+            {loraList.length <= 1 && <option>読み込み中...</option>}
+            {loraList.map((lora) => (
+              <option key={lora} value={lora}>
+                {lora}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* LoRA強度 (LoRA選択時のみ表示) */}
+        {isLoraSelected && (
+          <div>
+            <label
+              htmlFor="loraStrength"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
+              LoRA強度: {loraStrength.toFixed(2)}
+            </label>
+            <input
+              id="loraStrength"
+              type="range"
+              min="0"
+              max="2" // 強度は 0 から 2 の範囲など（適宜調整）
+              step="0.05"
+              value={loraStrength}
+              onChange={(e) => setLoraStrength(parseFloat(e.target.value))}
+              className="w-full accent-blue-600 dark:accent-blue-400"
+            />
+             <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
+              <span>弱い (0.0)</span>
+              <span>強い (2.0)</span>
+            </div>
+          </div>
+        )}
+        {/* --- ここまでモデル選択 UI --- */}
+
+
         {/* プロンプトとネガティブプロンプトの入力欄を削除 */}
         <div>
           <label

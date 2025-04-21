@@ -1,7 +1,11 @@
 import { create } from "zustand";
 import { GenerationParams as VideoGenerationParams } from "../components/ParameterSettings";
-import { ComfyUIParams, GenerationResult, ImageFile } from "../types";
+// comfyUIApi をインポート
+import { ComfyUIParams as ApiComfyUIParams, comfyUIApi } from "../services/api"; // api.ts から拡張された型もインポート
+import { GenerationResult, ImageFile } from "../types";
+// 元の ComfyUIParams 型もインポートしておく（必要に応じて）
 
+// AppState インターフェースに新しい状態とアクションを追加
 interface AppState {
   darkMode: boolean;
   toggleDarkMode: () => void;
@@ -9,8 +13,9 @@ interface AppState {
   setSourceImage: (image: ImageFile) => void;
   prompt: string;
   setPrompt: (prompt: string) => void;
-  params: ComfyUIParams;
-  updateParams: (params: Partial<ComfyUIParams>) => void;
+  // params の型を api.ts で拡張したものに合わせる
+  params: ApiComfyUIParams;
+  updateParams: (params: Partial<ApiComfyUIParams>) => void;
   isGenerating: boolean;
   setIsGenerating: (value: boolean) => void;
   results: GenerationResult[];
@@ -54,9 +59,24 @@ interface AppState {
 
   activeTab: "image" | "video";
   setActiveTab: (tab: "image" | "video") => void;
+
+  // --- モデル選択機能の状態 ---
+  checkpointList: string[];
+  loraList: string[];
+  selectedCheckpoint: string | null;
+  selectedLora: string | null;
+  loraStrength: number;
+  modelListError: string | null; // モデルリスト取得エラー用
+
+  // --- モデル選択機能のアクション ---
+  fetchModelLists: () => Promise<void>;
+  setSelectedCheckpoint: (checkpoint: string | null) => void;
+  setSelectedLora: (lora: string | null) => void;
+  setLoraStrength: (strength: number) => void;
 }
 
-const DEFAULT_PARAMS: ComfyUIParams = {
+// DEFAULT_PARAMS の型も ApiComfyUIParams に合わせる
+const DEFAULT_PARAMS: ApiComfyUIParams = {
   prompt: "photos, high resolution, super detailed, beautiful lighting",
   negativePrompt:
     "Low resolution, blurred, pixelated, poor resolution, poor quality",
@@ -65,6 +85,10 @@ const DEFAULT_PARAMS: ComfyUIParams = {
   cfg: 7,
   sampler: "dpmpp_2m",
   seed: -1,
+  // selectedCheckpoint は初期値 null またはデフォルト値を設定
+  selectedCheckpoint: null, // 初期選択なし
+  selectedLora: null, // 初期選択なし
+  loraStrength: 0.8, // デフォルト強度
 };
 
 const DEFAULT_VIDEO_PARAMS: VideoGenerationParams = {
@@ -94,7 +118,7 @@ const saveResults = (results: GenerationResult[]) => {
   }
 };
 
-export const useAppStore = create<AppState>((set) => ({
+export const useAppStore = create<AppState>((set, get) => ({ // get を追加
   darkMode: window.matchMedia("(prefers-color-scheme: dark)").matches,
   toggleDarkMode: () => set((state) => ({ darkMode: !state.darkMode })),
 
@@ -214,4 +238,75 @@ export const useAppStore = create<AppState>((set) => ({
 
   activeTab: "image",
   setActiveTab: (tab) => set({ activeTab: tab }),
+
+  // --- モデル選択機能の初期値 ---
+  checkpointList: [],
+  loraList: [],
+  selectedCheckpoint: null, // 初期選択なし
+  selectedLora: null, // 初期選択なし
+  loraStrength: 0.8,
+  modelListError: null,
+
+  // --- モデル選択機能のアクション実装 ---
+  fetchModelLists: async () => {
+    set({ modelListError: null }); // エラーをリセット
+    try {
+      const response = await comfyUIApi.getObjectInfo();
+      if (response.status === "success" && response.data) {
+        // response.data を any としてキャストして型エラーを回避 (ESLint警告を一時的に無視)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const objectInfo = response.data as any;
+        // CheckpointLoaderSimple からチェックポイントリストを取得
+        const checkpoints =
+          objectInfo.CheckpointLoaderSimple?.input?.required?.ckpt_name?.[0] || [];
+        // LoraLoader からLoRAリストを取得
+        const loras = objectInfo.LoraLoader?.input?.required?.lora_name?.[0] || [];
+
+        // 状態を更新
+        set({
+          checkpointList: checkpoints,
+          // LoRAリストの先頭に "None" を追加
+          loraList: ["None", ...loras],
+        });
+
+        // デフォルトのチェックポイントがリストにあれば設定
+        const currentCheckpoint = get().params.selectedCheckpoint;
+        if (!currentCheckpoint && checkpoints.length > 0) {
+          // デフォルト値としてリストの最初の項目を設定するか、特定の名前を探す
+          // ここではリストの最初の項目を設定
+          set((state) => ({
+             params: { ...state.params, selectedCheckpoint: checkpoints[0] }
+          }));
+        } else if (currentCheckpoint && !checkpoints.includes(currentCheckpoint)) {
+           // 現在選択中のものがリストになければリセット
+           set((state) => ({
+             params: { ...state.params, selectedCheckpoint: checkpoints[0] || null }
+           }));
+        }
+
+      } else {
+        throw new Error(response.error || "モデル情報の取得に失敗しました。");
+      }
+    } catch (error) {
+      console.error("モデルリストの取得中にエラーが発生しました:", error);
+      const message =
+        error instanceof Error ? error.message : "不明なエラーが発生しました。";
+      set({ modelListError: `モデルリストの取得に失敗しました: ${message}` });
+    }
+  },
+  setSelectedCheckpoint: (checkpoint) =>
+    set((state) => ({
+      params: { ...state.params, selectedCheckpoint: checkpoint },
+      selectedCheckpoint: checkpoint, // selectedCheckpoint 状態も更新
+    })),
+  setSelectedLora: (lora) =>
+    set((state) => ({
+      params: { ...state.params, selectedLora: lora },
+      selectedLora: lora, // selectedLora 状態も更新
+    })),
+  setLoraStrength: (strength) =>
+    set((state) => ({
+      params: { ...state.params, loraStrength: strength },
+      loraStrength: strength, // loraStrength 状態も更新
+    })),
 }));
