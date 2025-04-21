@@ -396,25 +396,20 @@ function buildVideoWorkflow(
         break;
       case "FramePackSampler": {
         // ID 39 - Add braces
-        apiNodeInputs["steps"] = params.steps; // UI
-        apiNodeInputs["use_teacache"] = wv[1];
-        apiNodeInputs["motion_strength"] = params.motionStrength; // UI
-        apiNodeInputs["guidance_scale"] = wv[3];
-        apiNodeInputs["cfg"] = params.cfgScale; // UI
-        // teacache_rel_l1_thresh: Clamp value to max 1.0, default to 0.15 if not a number
-        const threshValue = typeof wv[5] === "number" ? wv[5] : 0.15;
-        apiNodeInputs["teacache_rel_l1_thresh"] = Math.min(1.0, threshValue);
-        apiNodeInputs["seed"] =
-          params.seed < 0
-            ? Math.floor(Math.random() * 2147483647)
-            : params.seed; // UI or random
-        // shift: Use default float value 0.0 instead of string "increment"
-        apiNodeInputs["shift"] = 0.0; // wv[7] is "increment", which is invalid float
-        apiNodeInputs["latent_window_size"] = wv[8];
-        apiNodeInputs["gpu_memory_preservation"] = wv[9];
-        // apiNodeInputs["teacache_batch_size"] = wv[10]; // Assuming this is correct index
-        apiNodeInputs["sampler"] = wv[11];
-        apiNodeInputs["total_second_length"] = params.total_second_length; // UI
+        // ユーザー提供のJSONとテンプレート(wv)に合わせてパラメータを設定
+        apiNodeInputs["steps"] = wv[0];                            // wv[0] (30)
+        apiNodeInputs["use_teacache"] = wv[1];                     // wv[1] (true)
+        apiNodeInputs["denoise_strength"] = params.denoiseStrength; // UI (params) より (ユーザーJSON: 1)
+        apiNodeInputs["guidance_scale"] = wv[4];                   // wv[4] (10)
+        apiNodeInputs["cfg"] = wv[3];                            // wv[3] (1)
+        apiNodeInputs["teacache_rel_l1_thresh"] = wv[2];           // wv[2] (0.15)
+        apiNodeInputs["seed"] = wv[6];                            // wv[6] (213738928831015)
+        apiNodeInputs["shift"] = wv[5];                            // wv[5] (1.000...)
+        apiNodeInputs["latent_window_size"] = wv[7];               // wv[7] (9)
+        apiNodeInputs["gpu_memory_preservation"] = wv[9];          // wv[9] (6)
+        apiNodeInputs["sampler"] = wv[10];                         // wv[10] ("unipc_bh1")
+        apiNodeInputs["total_second_length"] = params.total_second_length; // UI (params) より (ユーザーJSON: 5)
+        apiNodeInputs["keyframe_weight"] = wv[12];                 // wv[12] (1.5) - 新規追加
         break;
       } // Add closing brace
       case "CLIPVisionEncode": // ID 17

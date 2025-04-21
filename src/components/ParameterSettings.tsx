@@ -3,10 +3,10 @@ import React from "react";
 export interface GenerationParams {
   steps: number;
   cfgScale: number;
-  motionStrength: number;
   fps: number;
   seed: number;
   total_second_length: number;
+  denoiseStrength: number; // 追加: denoiseStrength プロパティ
 }
 
 interface ParameterSettingsProps {
@@ -69,25 +69,28 @@ const ParameterSettings: React.FC<ParameterSettingsProps> = ({
           className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
         />
       </div>
+      {/* 削除: Motion Strength の入力フィールド */}
+      {/* 追加: Denoise Strength の入力フィールド */}
       <div>
         <label
-          htmlFor="motionStrength"
+          htmlFor="denoiseStrength"
           className="block text-sm font-medium text-gray-700 dark:text-gray-300"
         >
-          Motion Strength
+          Denoise Strength
         </label>
         <input
           type="number"
-          name="motionStrength"
-          id="motionStrength"
-          value={params.motionStrength}
+          name="denoiseStrength"
+          id="denoiseStrength"
+          value={params.denoiseStrength}
           onChange={handleChange}
           min="0"
-          max="1" // Example max value (0 to 1)
+          max="1" // Denoise strength is typically between 0 and 1
           step="0.05"
           className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
         />
       </div>
+      {/* --- */}
       <div>
         <label
           htmlFor="fps"
