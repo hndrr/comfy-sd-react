@@ -99,7 +99,7 @@ const DEFAULT_VIDEO_PARAMS: VideoGenerationParams = {
   fps: 24,
   seed: -1,
   total_second_length: 1,
-  denoiseStrength: 0.7, // 追加: denoiseStrength のデフォルト値
+  denoiseStrength: 1,
 };
 
 const loadResults = (): GenerationResult[] => {
