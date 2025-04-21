@@ -1,12 +1,12 @@
 import { AlertTriangle, Loader, Play } from "lucide-react";
-import React, { useState } from "react"; // useEffect を削除
+import React, { useState } from "react";
 import { comfyUIApi } from "../services/api";
 import { useAppStore } from "../store/useAppStore";
 import { GenerationResult } from "../types";
-import ImageUploader from "./ImageUploader"; // 追加
+import ImageUploader from "./ImageUploader";
 import ProgressBar from "./ProgressBar";
-import PromptInput from "./PromptInput"; // 追加
-import SettingsForm from "./SettingsForm"; // 追加
+import PromptInput from "./PromptInput";
+import SettingsForm from "./SettingsForm";
 
 const GenerationPanel: React.FC = () => {
   const {
@@ -99,8 +99,6 @@ const GenerationPanel: React.FC = () => {
       setIsGenerating(false);
     }
   };
-
-  // 不要になった useEffect を削除
 
   return (
     <div className="space-y-6">

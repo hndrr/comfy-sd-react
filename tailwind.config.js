@@ -23,10 +23,10 @@ export default {
         soft: "0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)",
       },
       animation: {
-        "fade-in": "fadeIn 0.3s ease-out", // Durationを調整 (任意)
-        "fade-out": "fadeOut 0.2s ease-in", // fadeOutを追加
-        "slide-in": "slideIn 0.3s ease-out", // slideInを追加
-        "slide-out": "slideOut 0.3s ease-in", // slideOutを追加
+        "fade-in": "fadeIn 0.3s ease-out",
+        "fade-out": "fadeOut 0.2s ease-in",
+        "slide-in": "slideIn 0.3s ease-out",
+        "slide-out": "slideOut 0.3s ease-in",
         "slide-up": "slideUp 0.3s ease-out",
       },
       keyframes: {

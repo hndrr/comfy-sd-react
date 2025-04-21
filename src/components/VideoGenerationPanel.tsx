@@ -14,15 +14,12 @@ const VideoGenerationPanel: React.FC = () => {
     videoPrompt,
     videoGenerationParams,
     isGeneratingVideo,
-    // generatedVideoUrl, // 削除
-    // videoError, // 削除 (setError に統一)
     setVideoPrompt,
     setVideoGenerationParams,
     setIsGeneratingVideo,
-    // setGeneratedVideoUrl, // 削除 (addResult を使用)
     setVideoProgress,
-    addResult, // addResult をインポート
-    setError, // setError をインポート
+    addResult,
+    setError,
   } = useAppStore();
   const handleGenerateClick = async () => {
     if (!videoSourceImage.file) {
@@ -45,7 +42,7 @@ const VideoGenerationPanel: React.FC = () => {
       if (result.status === "success" && result.data) {
         // result.data が GenerationResult 型であることを想定
         // (api.ts で型付けされているため、ここでは型ガードを簡略化)
-        addResult(result.data as GenerationResult); // ストアに結果を追加
+        addResult(result.data as GenerationResult);
       } else {
         setError(
           result.error || "Failed to generate video or invalid data received."
@@ -83,12 +80,7 @@ const VideoGenerationPanel: React.FC = () => {
               disabled={!videoSourceImage.file || isGeneratingVideo} // videoSourceImage を使用
             />
           </div>
-          {/* isGeneratingVideo をストアから取得して ProgressBar を表示 */}
           {isGeneratingVideo && <ProgressBar />}
-          {/* videoError は削除し、共通の ErrorAlert を使用 (App.tsx で表示) */}
-          {/* {videoError && <ErrorAlert message={videoError} />} */}
-          {/* generatedVideoUrl は削除し、ResultsGallery で表示 */}
-          {/* {generatedVideoUrl && !isGeneratingVideo && ( ... )} */}
         </div>
       </div>
     </div>

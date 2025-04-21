@@ -34,7 +34,7 @@ interface AppState {
   videoError: string | null;
   setVideoError: (error: string | null) => void;
   videoProgress: number | null; // 動画生成の進捗
-  setVideoProgress: (progress: number | null) => void; // 追加: 動画生成の進捗を更新するアクション
+  setVideoProgress: (progress: number | null) => void;
   isConnectionSettingsOpen: boolean;
   toggleConnectionSettings: () => void;
 
@@ -49,7 +49,7 @@ interface AppState {
   openVideoPreviewModal: (url: string) => void;
   closeVideoPreviewModal: () => void;
  
-  selectedSourceImage: string | null; // これは画像生成のソース選択用？ 一旦残す
+  selectedSourceImage: string | null;
   setSelectedSourceImage: (imageUrl: string | null) => void; // 同上
 
   activeTab: "image" | "video";
@@ -154,8 +154,8 @@ export const useAppStore = create<AppState>((set) => ({
   progress: null,
   setProgress: (progress) => set({ progress }),
 
-  videoProgress: null, // 追加: 動画生成の進捗初期値
-  setVideoProgress: (progress) => set({ videoProgress: progress }), // 追加: 動画生成の進捗更新アクション
+  videoProgress: null,
+  setVideoProgress: (progress) => set({ videoProgress: progress }),
 
   videoPrompt: "A cinematic shot of dinosaurs moving violently to intimidate",
   setVideoPrompt: (prompt) => set({ videoPrompt: prompt }),
@@ -170,25 +170,16 @@ export const useAppStore = create<AppState>((set) => ({
   setIsGeneratingVideo: (value) =>
     set({
       isGeneratingVideo: value,
-      // generatedVideoUrl: null, // 削除
       videoError: null,
       videoProgress: value ? 0 : null, // 開始時に0、終了/エラー時にnull (addResult/setVideoErrorで処理)
     }),
-
-  // generatedVideoUrl: null, // 削除
-  // setGeneratedVideoUrl: (url) => // 削除 (addResult で結果を追加)
-  //   set({
-  //     // generatedVideoUrl: url, // 削除
-  //     isGeneratingVideo: false,
-  //     videoProgress: null,
-  //   }),
  
   videoError: null,
   setVideoError: (error) => // エラー発生時に isGeneratingVideo と progress をリセット
     set({
       videoError: error,
       isGeneratingVideo: false,
-      videoProgress: null, // 追加: エラー時にnull
+      videoProgress: null,
     }),
 
   videoSourceImage: {

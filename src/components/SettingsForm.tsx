@@ -1,5 +1,5 @@
+import { Sliders, Zap } from "lucide-react";
 import React, { useState } from "react";
-import { Sliders, Zap } from "lucide-react"; // Settings を削除
 import { useAppStore } from "../store/useAppStore";
 import { generateRandomSeed } from "../utils/imageHelpers";
 
@@ -10,7 +10,7 @@ const samplers = [
   { value: "dpm_2", label: "DPM Solver 2" },
   { value: "dpm_2_a", label: "DPM Solver 2 Ancestral" },
   { value: "dpm++_2s_a", label: "DPM++ 2S Ancestral" },
-  { value: "dpmpp_2m", label: "DPM++ 2M" }, // ユーザー環境に合わせて追加
+  { value: "dpmpp_2m", label: "DPM++ 2M" },
   { value: "dpm++_sde", label: "DPM++ SDE" },
   { value: "dpm_fast", label: "DPM Fast" },
   { value: "dpm_adaptive", label: "DPM Adaptive" },
@@ -19,9 +19,8 @@ const samplers = [
 ];
 
 const SettingsForm: React.FC = () => {
-  const { params, updateParams } = useAppStore(); // apiUrl, setApiUrl を削除
+  const { params, updateParams } = useAppStore();
   const [showAdvanced, setShowAdvanced] = useState(false);
-  // showSettings state を削除
 
   const handleRandomSeed = () => {
     updateParams({ seed: generateRandomSeed() });
@@ -175,8 +174,6 @@ const SettingsForm: React.FC = () => {
             </div>
           </div>
         )}
-
-        {/* 接続設定ボタンとフォームを削除 */}
       </div>
     </div>
   );
