@@ -270,6 +270,50 @@ const SettingsForm: React.FC = () => {
                 同じシード値は同じ結果を生成します。-1でランダム値になります。
               </p>
             </div>
+
+            {/* 画像サイズ設定 */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label
+                  htmlFor="width"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                >
+                  幅 (Width)
+                </label>
+                <input
+                  id="width"
+                  type="number"
+                  step="64" // 64単位で変更可能にするなど
+                  value={params.width}
+                  onChange={(e) =>
+                    updateParams({ width: parseInt(e.target.value) || 512 }) // 不正値はデフォルトに
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                  placeholder="例: 512"
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="height"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                >
+                  高さ (Height)
+                </label>
+                <input
+                  id="height"
+                  type="number"
+                  step="64"
+                  value={params.height}
+                  onChange={(e) =>
+                    updateParams({ height: parseInt(e.target.value) || 512 })
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                  placeholder="例: 512"
+                />
+              </div>
+            </div>
+            {/* --- 画像サイズ設定ここまで --- */}
+
           </div>
         )}
       </div>

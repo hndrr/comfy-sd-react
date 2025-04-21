@@ -85,6 +85,8 @@ const DEFAULT_PARAMS: ApiComfyUIParams = {
   cfg: 7,
   sampler: "dpmpp_2m",
   seed: -1,
+  width: 512, // 追加 (デフォルト値)
+  height: 512, // 追加 (デフォルト値)
   // selectedCheckpoint は初期値 null またはデフォルト値を設定
   selectedCheckpoint: null, // 初期選択なし
   selectedLora: null, // 初期選択なし
