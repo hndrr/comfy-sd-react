@@ -52,14 +52,62 @@ const SettingsForm: React.FC = () => {
       <h2 className="text-lg font-medium mb-4 text-gray-900 dark:text-white">
         生成パラメータ
       </h2>
-
+      <div className="flex items-end gap-2">
+        <div className="flex-1">
+          <label
+            htmlFor="width"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+          >
+            幅 (Width)
+          </label>
+          <input
+            id="width"
+            type="number"
+            step="64"
+            value={params.width}
+            onChange={(e) =>
+              updateParams({ width: parseInt(e.target.value) || 512 })
+            }
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+            placeholder="例: 512"
+          />
+        </div>
+        {/* 交換ボタン */}
+        <button
+          type="button"
+          onClick={handleSwapDimensions}
+          className="p-2 mb-1 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 transition-colors"
+          aria-label="幅と高さを交換"
+        >
+          <ArrowRightLeft size={18} />
+        </button>
+        <div className="flex-1">
+          <label
+            htmlFor="height"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+          >
+            高さ (Height)
+          </label>
+          <input
+            id="height"
+            type="number"
+            step="64"
+            value={params.height}
+            onChange={(e) =>
+              updateParams({ height: parseInt(e.target.value) || 512 })
+            }
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+            placeholder="例: 512"
+          />
+        </div>
+      </div>
       {/* モデルリスト取得エラー表示 */}
       {modelListError && (
         <div className="p-3 bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-700 rounded-md text-red-700 dark:text-red-200 text-sm">
           {modelListError}
         </div>
       )}
-
+   
       <div className="space-y-4">
         {/* --- モデル選択 UI --- */}
         <div>
@@ -134,62 +182,6 @@ const SettingsForm: React.FC = () => {
           </div>
         )}
         {/* --- ここまでモデル選択 UI --- */}
-
-
-        {/* プロンプトとネガティブプロンプトの入力欄を削除 */}
-
-        {/* 画像サイズ設定 (詳細設定の外に移動) */}
-        <div className="flex items-end gap-2">
-          <div className="flex-1">
-            <label
-              htmlFor="width"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >
-              幅 (Width)
-            </label>
-            <input
-              id="width"
-              type="number"
-              step="64"
-              value={params.width}
-              onChange={(e) =>
-                updateParams({ width: parseInt(e.target.value) || 512 })
-              }
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-              placeholder="例: 512"
-            />
-          </div>
-          {/* 交換ボタン */}
-          <button
-            type="button"
-            onClick={handleSwapDimensions}
-            className="p-2 mb-1 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 transition-colors"
-            aria-label="幅と高さを交換"
-          >
-            <ArrowRightLeft size={18} />
-          </button>
-          <div className="flex-1">
-            <label
-              htmlFor="height"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >
-              高さ (Height)
-            </label>
-            <input
-              id="height"
-              type="number"
-              step="64"
-              value={params.height}
-              onChange={(e) =>
-                updateParams({ height: parseInt(e.target.value) || 512 })
-              }
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-              placeholder="例: 512"
-            />
-          </div>
-        </div>
-        {/* --- 画像サイズ設定ここまで --- */}
-
         <div>
           <label
             htmlFor="denoiseStrength"
