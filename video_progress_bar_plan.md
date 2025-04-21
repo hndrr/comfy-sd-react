@@ -114,7 +114,7 @@
         ```typescript
         const {
           // ... existing state ...
-          setVideoProgress, // 追加
+          setVideoProgress,
         } = useAppStore();
         ```
 

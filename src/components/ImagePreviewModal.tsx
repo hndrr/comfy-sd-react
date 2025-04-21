@@ -1,6 +1,6 @@
-import React from "react";
-import { Modal, ModalOverlay, Dialog } from "react-aria-components";
 import { X } from "lucide-react";
+import React from "react";
+import { Dialog, Modal, ModalOverlay } from "react-aria-components";
 
 interface ImagePreviewModalProps {
   isOpen: boolean;
@@ -32,10 +32,6 @@ export const ImagePreviewModal: React.FC<ImagePreviewModalProps> = ({
     >
       <Modal className={modalClasses}>
         <Dialog className={dialogClasses} aria-label="Image Preview">
-          {" "}
-          {/* aria-label を追加 */}
-          {/* Dialogからclose関数を取得する必要がなければ、直接onCloseを使う */}
-          <>
             <img
               src={imageUrl}
               alt="Generated Preview"
@@ -48,7 +44,6 @@ export const ImagePreviewModal: React.FC<ImagePreviewModalProps> = ({
             >
               <X size={24} />
             </button>
-          </>
         </Dialog>
       </Modal>
     </ModalOverlay>

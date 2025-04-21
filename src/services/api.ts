@@ -153,9 +153,7 @@ export const comfyUIApi = {
 
       const generationResult: GenerationResult = {
         id: promptId,
-        // imageUrl: result, // imageUrl は削除
         videoUrl: videoUrl,
-        // thumbnailUrl は削除
         prompt: prompt,
         params: videoParams,
         timestamp: Date.now(),

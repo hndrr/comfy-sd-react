@@ -1,11 +1,11 @@
-import { Download, Play, SendToBack, Trash2 } from "lucide-react"; // Play アイコンを追加
+import { Download, Play, SendToBack, Trash2 } from "lucide-react";
 import React from "react";
 import { useAppStore } from "../store/useAppStore";
-import { GenerationResult } from "../types"; // GenerationResult 型をインポート
-import { downloadImage, downloadVideo } from "../utils/imageHelpers"; // downloadVideo をインポート
+import { GenerationResult } from "../types";
+import { downloadImage, downloadVideo } from "../utils/imageHelpers";
 
 const ResultItem: React.FC<{
-  result: GenerationResult; // result オブジェクト全体を受け取る
+  result: GenerationResult;
   onDelete: (id: string) => void;
 }> = ({ result, onDelete }) => {
   const {
@@ -13,8 +13,8 @@ const ResultItem: React.FC<{
     setSourceImage,
     setVideoSourceImage,
     setError,
-    openPreviewModal, // 画像プレビュー用
-    openVideoPreviewModal, // 動画プレビュー用
+    openPreviewModal,
+    openVideoPreviewModal, 
   } = useAppStore();
 
   const { id, type, timestamp, imageUrl, videoUrl, thumbnailUrl } = result; // result から必要な情報を展開
@@ -120,13 +120,8 @@ const ResultItem: React.FC<{
 
       {/* オーバーレイ自体はクリックイベントを無視し、中のボタンのみ有効にする */}
       <div className="absolute inset-0 flex flex-col justify-between p-3 opacity-0 group-hover:opacity-100 bg-black/60 transition-opacity pointer-events-none">
-        {" "}
-        {/* pointer-events-none を追加 */}
         <div className="text-xs text-white self-end">{formattedDate}</div>
         <div className="flex justify-between items-end pointer-events-auto">
-          {" "}
-          {/* ボタンコンテナに pointer-events-auto を追加 */}
-          {/* 削除ボタン */}
           <button
             type="button"
             onClick={() => onDelete(id)}
@@ -136,9 +131,6 @@ const ResultItem: React.FC<{
             <Trash2 size={16} />
           </button>
           <div className="flex space-x-1">
-            {" "}
-            {/* ここも pointer-events-auto は不要 (親で設定) */}
-            {/* ソースとして使用ボタン (画像の場合のみ表示) */}
             {type === "image" && (
               <button
                 type="button"
@@ -155,15 +147,13 @@ const ResultItem: React.FC<{
                 <SendToBack size={16} />
               </button>
             )}
-            {/* ダウンロードボタン */}
             <button
               type="button"
-              onClick={async (e) => { // async を追加
+              onClick={async (e) => {
                 e.stopPropagation();
                 if (type === "image" && imageUrl) {
                   downloadImage(imageUrl, `comfyui-img-${Date.now()}.png`);
                 } else if (type === "video" && videoUrl) {
-                  // downloadVideo 関数を呼び出す (後で実装)
                   await downloadVideo(videoUrl, `comfyui-vid-${Date.now()}.mp4`);
                 }
               }}
@@ -180,8 +170,6 @@ const ResultItem: React.FC<{
 };
 
 const ResultsGallery: React.FC = () => {
-  // setSelectedSourceImage は不要になったので削除
-  // openPreviewModal は ResultItem 内部で使うのでここでは不要
   const { results, removeResult } = useAppStore();
 
   if (results.length === 0) {
@@ -198,7 +186,7 @@ const ResultsGallery: React.FC = () => {
         {results.map((result) => (
           <ResultItem
             key={result.id}
-            result={result} // result オブジェクト全体を渡す
+            result={result}
             onDelete={removeResult}
           />
         ))}

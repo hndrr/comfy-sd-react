@@ -4,7 +4,7 @@ import { useAppStore } from "../store/useAppStore";
 const ProgressBar: React.FC = () => {
   const activeTab = useAppStore((state) => state.activeTab);
   const imageProgress = useAppStore((state) => state.progress);
-  const videoProgress = useAppStore((state) => state.videoProgress); // 追加
+  const videoProgress = useAppStore((state) => state.videoProgress);
 
   // 表示するタブに応じて進捗を選択
   const progress = activeTab === "video" ? videoProgress : imageProgress;

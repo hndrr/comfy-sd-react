@@ -12,16 +12,10 @@ function App() {
   const {
     darkMode,
     isConnectionSettingsOpen,
-    isPreviewModalOpen, // モーダル表示状態を取得
+    isPreviewModalOpen,
     previewImageUrl,
     closePreviewModal,
-    // 動画モーダル用の state も取得 (ただし VideoPreviewModal 内部で直接使うのでここでは不要かも)
-    // isVideoPreviewModalOpen,
-    // previewVideoUrl,
-    // closeVideoPreviewModal,
   } = useAppStore();
-
-  // デバッグ用 useEffect を削除
 
   // ダークモードの適用
   useEffect(() => {
