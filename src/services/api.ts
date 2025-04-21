@@ -403,7 +403,8 @@ function buildVideoWorkflow(
         apiNodeInputs["guidance_scale"] = wv[4];                   // wv[4] (10)
         apiNodeInputs["cfg"] = wv[3];                            // wv[3] (1)
         apiNodeInputs["teacache_rel_l1_thresh"] = wv[2];           // wv[2] (0.15)
-        apiNodeInputs["seed"] = wv[6];                            // wv[6] (213738928831015)
+        // シード値を params から取得、なければランダム生成
+        apiNodeInputs["seed"] = params.seed < 0 ? Math.floor(Math.random() * 2147483647) : params.seed;
         apiNodeInputs["shift"] = wv[5];                            // wv[5] (1.000...)
         apiNodeInputs["latent_window_size"] = wv[7];               // wv[7] (9)
         apiNodeInputs["gpu_memory_preservation"] = wv[9];          // wv[9] (6)
