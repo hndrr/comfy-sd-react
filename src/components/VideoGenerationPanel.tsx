@@ -82,7 +82,7 @@ const VideoGenerationPanel: React.FC = () => {
       <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">
         Video Generation
       </h2>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <ImageUploader imageType="video" />
         <div className="space-y-6">
           <PromptInput prompt={videoPrompt} setPrompt={setVideoPrompt} />

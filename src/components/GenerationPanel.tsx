@@ -1,10 +1,10 @@
+import { AlertTriangle, Loader, Play } from "lucide-react";
 import React, { useState } from "react"; // useEffect を削除
-import { Play, AlertTriangle, Loader } from "lucide-react";
-import { useAppStore } from "../store/useAppStore";
 import { comfyUIApi } from "../services/api";
-import ProgressBar from "./ProgressBar";
+import { useAppStore } from "../store/useAppStore";
 import { GenerationResult } from "../types";
 import ImageUploader from "./ImageUploader"; // 追加
+import ProgressBar from "./ProgressBar";
 import PromptInput from "./PromptInput"; // 追加
 import SettingsForm from "./SettingsForm"; // 追加
 
@@ -124,7 +124,7 @@ const GenerationPanel: React.FC = () => {
       <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
         Image Generation
       </h2>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <ImageUploader imageType="image" />
         <div className="space-y-6">
           <PromptInput prompt={prompt} setPrompt={setPrompt} />
