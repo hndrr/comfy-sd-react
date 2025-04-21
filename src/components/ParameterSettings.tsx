@@ -117,16 +117,31 @@ const ParameterSettings: React.FC<ParameterSettingsProps> = ({
         >
           Seed (-1 for random)
         </label>
-        <input
-          type="number"
-          name="seed"
-          id="seed"
-          value={params.seed}
-          onChange={handleChange}
-          min="-1"
-          step="1"
-          className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-        />
+        <div className="mt-1 flex rounded-md shadow-sm">
+          <input
+            type="number"
+            name="seed"
+            id="seed"
+            value={params.seed}
+            onChange={handleChange}
+            min="-1"
+            step="1"
+            className="block w-full flex-1 rounded-none rounded-l-md border-gray-300 dark:border-gray-600 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+          />
+          <button
+            type="button"
+            onClick={() =>
+              setParams({
+                ...params,
+                seed: Math.floor(Math.random() * 2 ** 32), // Generate random seed
+              })
+            }
+            className="inline-flex items-center rounded-r-md border border-l-0 border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 px-3 text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+            title="Generate random seed"
+          >
+            🎲 {/* Dice emoji as icon */}
+          </button>
+        </div>
       </div>
       <div>
         <label
