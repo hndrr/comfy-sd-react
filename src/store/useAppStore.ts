@@ -96,10 +96,10 @@ const DEFAULT_PARAMS: ApiComfyUIParams = {
 const DEFAULT_VIDEO_PARAMS: VideoGenerationParams = {
   steps: 30,
   cfgScale: 1,
-  motionStrength: 0.15,
   fps: 24,
   seed: -1,
   total_second_length: 1,
+  denoiseStrength: 0.7, // 追加: denoiseStrength のデフォルト値
 };
 
 const loadResults = (): GenerationResult[] => {
@@ -183,7 +183,7 @@ export const useAppStore = create<AppState>((set, get) => ({ // get を追加
   videoProgress: null,
   setVideoProgress: (progress) => set({ videoProgress: progress }),
 
-  videoPrompt: "A cinematic shot of dinosaurs moving violently to intimidate",
+  videoPrompt: "He/She is dancing passionately to the music.",
   setVideoPrompt: (prompt) => set({ videoPrompt: prompt }),
 
   videoGenerationParams: DEFAULT_VIDEO_PARAMS,
