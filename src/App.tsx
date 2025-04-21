@@ -1,22 +1,21 @@
 import { useEffect } from "react";
-import { useAppStore } from "./store/useAppStore";
-import Header from "./components/Header";
-import GenerationTabs from "./components/GenerationTabs"; // タブコンポーネント
-import ResultsGallery from "./components/ResultsGallery";
+import { ConnectionSettingsPanel } from "./components/ConnectionSettingsPanel";
 import ErrorAlert from "./components/ErrorAlert";
-import { ConnectionSettingsPanel } from "./components/ConnectionSettingsPanel"; // パネルをインポート
-import { ImagePreviewModal } from "./components/ImagePreviewModal"; // 画像プレビューモーダルをインポート
+import GenerationTabs from "./components/GenerationTabs"; // タブコンポーネント
+import Header from "./components/Header";
+import { ImagePreviewModal } from "./components/ImagePreviewModal";
+import ResultsGallery from "./components/ResultsGallery";
+import VideoPreviewModal from "./components/VideoPreviewModal"; // 動画プレビューモーダルをインポート
+import { useAppStore } from "./store/useAppStore";
 
 function App() {
   const {
     darkMode,
     isConnectionSettingsOpen,
-    isPreviewModalOpen, // モーダル表示状態を取得
-    previewImageUrl, // 表示する画像URLを取得
-    closePreviewModal, // モーダルを閉じる関数を取得
+    isPreviewModalOpen,
+    previewImageUrl,
+    closePreviewModal,
   } = useAppStore();
-
-  // デバッグ用 useEffect を削除
 
   // ダークモードの適用
   useEffect(() => {
@@ -51,6 +50,9 @@ function App() {
         imageUrl={previewImageUrl}
         onClose={closePreviewModal}
       />
+ 
+      {/* 動画プレビューモーダルをレンダリング */}
+      <VideoPreviewModal />
     </div>
   );
 }

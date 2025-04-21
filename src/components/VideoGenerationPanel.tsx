@@ -1,13 +1,12 @@
 import React from "react";
 import { comfyUIApi } from "../services/api";
 import { useAppStore } from "../store/useAppStore";
-import ErrorAlert from "./ErrorAlert";
+import { GenerationResult } from "../types";
 import GenerateButton from "./GenerateButton";
 import ImageUploader from "./ImageUploader";
 import ParameterSettings from "./ParameterSettings";
 import ProgressBar from "./ProgressBar";
 import PromptInput from "./PromptInput";
-import VideoPreview from "./VideoPreview";
 
 const VideoGenerationPanel: React.FC = () => {
   const {
@@ -15,26 +14,21 @@ const VideoGenerationPanel: React.FC = () => {
     videoPrompt,
     videoGenerationParams,
     isGeneratingVideo,
-    generatedVideoUrl,
-    videoError,
     setVideoPrompt,
     setVideoGenerationParams,
     setIsGeneratingVideo,
-    setGeneratedVideoUrl,
     setVideoProgress,
+    addResult,
+    setError,
   } = useAppStore();
   const handleGenerateClick = async () => {
-    // setVideoError は ResultsGallery で処理するため、ここでの呼び出しを削除
     if (!videoSourceImage.file) {
-      // videoSourceImage を使用
-      // setError("Please select an image first."); // setError を使用
-      useAppStore.getState().setError("Please select an image first."); // 直接ストアのアクションを呼ぶ
+      setError("Please select an image first."); // setError を使用
       return;
     }
 
-    setIsGeneratingVideo(true); // 生成開始
-    // setVideoError(null); // setError を使用
-    useAppStore.getState().setError(null); // 直接ストアのアクションを呼ぶ
+    setIsGeneratingVideo(true);
+    setError(null); // エラーをクリア
 
     try {
       const result = await comfyUIApi.generateVideo(
@@ -44,36 +38,25 @@ const VideoGenerationPanel: React.FC = () => {
         setVideoProgress
       );
 
-      // 結果データの型ガードを強化
-      if (
-        result.status === "success" &&
-        typeof result.data === "object" &&
-        result.data !== null &&
-        "imageUrl" in result.data &&
-        typeof result.data.imageUrl === "string" // imageUrlがstringであることを確認
-      ) {
-        // imageUrl は動画URLを想定
-        setGeneratedVideoUrl(result.data.imageUrl);
+      // API レスポンスを処理
+      if (result.status === "success" && result.data) {
+        // result.data が GenerationResult 型であることを想定
+        // (api.ts で型付けされているため、ここでは型ガードを簡略化)
+        addResult(result.data as GenerationResult);
       } else {
-        // setVideoError(...) // setError を使用
-        useAppStore
-          .getState()
-          .setError(
-            result.error || "Failed to generate video or invalid data received."
-          );
+        setError(
+          result.error || "Failed to generate video or invalid data received."
+        );
       }
     } catch (error) {
       console.error("Video generation failed:", error);
-      // setVideoError(...) // setError を使用
-      useAppStore
-        .getState()
-        .setError(
-          error instanceof Error
-            ? error.message
-            : "An unknown error occurred during video generation."
-        );
+      setError(
+        error instanceof Error
+          ? error.message
+          : "An unknown error occurred during video generation."
+      );
     } finally {
-      // setIsGeneratingVideo(false); // generateVideo内で結果/エラー時にfalseになるはず
+      // setIsGeneratingVideo(false); // finally でのセットは不要 (addResult or setError で処理される)
     }
   };
 
@@ -97,15 +80,7 @@ const VideoGenerationPanel: React.FC = () => {
               disabled={!videoSourceImage.file || isGeneratingVideo} // videoSourceImage を使用
             />
           </div>
-          {isGeneratingVideo && <ProgressBar />}{" "}
-          {/* コメント解除し、propsを削除 */}
-          {videoError && <ErrorAlert message={videoError} />}
-          {generatedVideoUrl && !isGeneratingVideo && (
-            <VideoPreview
-              videoUrl={generatedVideoUrl}
-              fileName={`video_${Date.now()}.mp4`}
-            />
-          )}
+          {isGeneratingVideo && <ProgressBar />}
         </div>
       </div>
     </div>

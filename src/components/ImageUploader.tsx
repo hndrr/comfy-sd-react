@@ -1,5 +1,5 @@
-import React, { useCallback, useRef } from "react";
 import { Upload, X } from "lucide-react";
+import React, { useCallback, useRef } from "react";
 import { useAppStore } from "../store/useAppStore";
 import { createPreviewFromFile } from "../utils/imageHelpers";
 interface ImageUploaderProps {
@@ -62,7 +62,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ imageType }) => {
 
   return (
     <div className="w-full">
-      <h2 className="font-medium text-gray-900 dark:text-white">ソース画像</h2>
+      <h2 className="font-medium text-gray-900 dark:text-white">Source Image</h2>
       {!currentImage.preview ? (
         <div
           className="border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg p-8 text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors h-[350px] justify-center flex flex-col"

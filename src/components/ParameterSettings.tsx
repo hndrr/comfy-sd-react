@@ -5,8 +5,8 @@ export interface GenerationParams {
   cfgScale: number;
   motionStrength: number;
   fps: number;
-  seed: number; // 追加
-  total_second_length: number; // 追加
+  seed: number;
+  total_second_length: number;
 }
 
 interface ParameterSettingsProps {
@@ -34,7 +34,7 @@ const ParameterSettings: React.FC<ParameterSettingsProps> = ({
       <div>
         <label
           htmlFor="steps"
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300" // ダークモード文字色追加
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
         >
           Steps
         </label>
@@ -47,13 +47,13 @@ const ParameterSettings: React.FC<ParameterSettingsProps> = ({
           min="1"
           max="100" // Example max value
           step="1"
-          className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" // ダークモードスタイル追加
+          className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
         />
       </div>
       <div>
         <label
           htmlFor="cfgScale"
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300" // ダークモード文字色追加
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
         >
           CFG Scale
         </label>
@@ -66,13 +66,13 @@ const ParameterSettings: React.FC<ParameterSettingsProps> = ({
           min="1"
           max="20" // Example max value
           step="0.1"
-          className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" // ダークモードスタイル追加
+          className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
         />
       </div>
       <div>
         <label
           htmlFor="motionStrength"
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300" // ダークモード文字色追加
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
         >
           Motion Strength
         </label>
@@ -85,13 +85,13 @@ const ParameterSettings: React.FC<ParameterSettingsProps> = ({
           min="0"
           max="1" // Example max value (0 to 1)
           step="0.05"
-          className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" // ダークモードスタイル追加
+          className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
         />
       </div>
       <div>
         <label
           htmlFor="fps"
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300" // ダークモード文字色追加
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
         >
           Frames Per Second (FPS)
         </label>
@@ -104,13 +104,13 @@ const ParameterSettings: React.FC<ParameterSettingsProps> = ({
           min="1"
           max="60" // Example max value
           step="1"
-          className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" // ダークモードスタイル追加
+          className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
         />
       </div>
       <div>
         <label
           htmlFor="seed"
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300" // ダークモード文字色追加
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
         >
           Seed (-1 for random)
         </label>
@@ -122,13 +122,13 @@ const ParameterSettings: React.FC<ParameterSettingsProps> = ({
           onChange={handleChange}
           min="-1"
           step="1"
-          className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" // ダークモードスタイル追加
+          className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
         />
       </div>
       <div>
         <label
           htmlFor="total_second_length"
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300" // ダークモード文字色追加
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
         >
           Total Second Length
         </label>
@@ -140,7 +140,7 @@ const ParameterSettings: React.FC<ParameterSettingsProps> = ({
           onChange={handleChange}
           min="1"
           step="1"
-          className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" // ダークモードスタイル追加
+          className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
         />
       </div>
     </div>
