@@ -183,7 +183,7 @@ export const useAppStore = create<AppState>((set, get) => ({ // get を追加
   videoProgress: null,
   setVideoProgress: (progress) => set({ videoProgress: progress }),
 
-  videoPrompt: "He/She is dancing passionately to the music.",
+  videoPrompt: "The girl dances gracefully, with clear movements, full of charm.",
   setVideoPrompt: (prompt) => set({ videoPrompt: prompt }),
 
   videoGenerationParams: DEFAULT_VIDEO_PARAMS,
