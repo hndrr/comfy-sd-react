@@ -96,7 +96,6 @@ const DEFAULT_PARAMS: ApiComfyUIParams = {
 const DEFAULT_VIDEO_PARAMS: VideoGenerationParams = {
   steps: 30,
   cfgScale: 1,
-  motionStrength: 0.15,
   fps: 24,
   seed: -1,
   total_second_length: 1,
