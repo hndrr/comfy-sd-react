@@ -1,4 +1,4 @@
-import { Sliders, Zap } from "lucide-react";
+import { ArrowRightLeft, Sliders, Zap } from "lucide-react"; // ArrowRightLeft をインポート
 import React, { useState } from "react";
 import { useAppStore } from "../store/useAppStore";
 import { generateRandomSeed } from "../utils/imageHelpers";
@@ -37,6 +37,11 @@ const SettingsForm: React.FC = () => {
 
   const handleRandomSeed = () => {
     updateParams({ seed: generateRandomSeed() });
+  };
+
+  // 幅と高さを交換するハンドラ
+  const handleSwapDimensions = () => {
+    updateParams({ width: params.height, height: params.width });
   };
 
   // LoRAが選択されているかどうかの判定
@@ -132,6 +137,59 @@ const SettingsForm: React.FC = () => {
 
 
         {/* プロンプトとネガティブプロンプトの入力欄を削除 */}
+
+        {/* 画像サイズ設定 (詳細設定の外に移動) */}
+        <div className="flex items-end gap-2">
+          <div className="flex-1">
+            <label
+              htmlFor="width"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
+              幅 (Width)
+            </label>
+            <input
+              id="width"
+              type="number"
+              step="64"
+              value={params.width}
+              onChange={(e) =>
+                updateParams({ width: parseInt(e.target.value) || 512 })
+              }
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+              placeholder="例: 512"
+            />
+          </div>
+          {/* 交換ボタン */}
+          <button
+            type="button"
+            onClick={handleSwapDimensions}
+            className="p-2 mb-1 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 transition-colors"
+            aria-label="幅と高さを交換"
+          >
+            <ArrowRightLeft size={18} />
+          </button>
+          <div className="flex-1">
+            <label
+              htmlFor="height"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
+              高さ (Height)
+            </label>
+            <input
+              id="height"
+              type="number"
+              step="64"
+              value={params.height}
+              onChange={(e) =>
+                updateParams({ height: parseInt(e.target.value) || 512 })
+              }
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+              placeholder="例: 512"
+            />
+          </div>
+        </div>
+        {/* --- 画像サイズ設定ここまで --- */}
+
         <div>
           <label
             htmlFor="denoiseStrength"
@@ -271,52 +329,10 @@ const SettingsForm: React.FC = () => {
               </p>
             </div>
 
-            {/* 画像サイズ設定 */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label
-                  htmlFor="width"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                >
-                  幅 (Width)
-                </label>
-                <input
-                  id="width"
-                  type="number"
-                  step="64" // 64単位で変更可能にするなど
-                  value={params.width}
-                  onChange={(e) =>
-                    updateParams({ width: parseInt(e.target.value) || 512 }) // 不正値はデフォルトに
-                  }
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                  placeholder="例: 512"
-                />
+                {/* 構文エラーの原因となっていた重複コードを削除 */}
               </div>
-              <div>
-                <label
-                  htmlFor="height"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                >
-                  高さ (Height)
-                </label>
-                <input
-                  id="height"
-                  type="number"
-                  step="64"
-                  value={params.height}
-                  onChange={(e) =>
-                    updateParams({ height: parseInt(e.target.value) || 512 })
-                  }
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                  placeholder="例: 512"
-                />
-              </div>
-            </div>
-            {/* --- 画像サイズ設定ここまで --- */}
-
+            )}
           </div>
-        )}
-      </div>
     </div>
   );
 };
