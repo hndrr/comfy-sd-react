@@ -63,7 +63,7 @@ const VideoGenerationPanel: React.FC = () => {
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">
-        Video Generation
+        FramePack
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <ImageUploader imageType="video" />
