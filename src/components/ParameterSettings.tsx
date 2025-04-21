@@ -6,7 +6,7 @@ export interface GenerationParams {
   fps: number;
   seed: number;
   total_second_length: number;
-  denoiseStrength: number; // 追加: denoiseStrength プロパティ
+  denoiseStrength: number;
 }
 
 interface ParameterSettingsProps {
