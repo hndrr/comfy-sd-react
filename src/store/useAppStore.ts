@@ -31,8 +31,6 @@ interface AppState {
   setVideoSourceImage: (image: ImageFile) => void;
   isGeneratingVideo: boolean;
   setIsGeneratingVideo: (value: boolean) => void;
-  // generatedVideoUrl: string | null; // 不要になるため削除
-  // setGeneratedVideoUrl: (url: string | null) => void; // 不要になるため削除
   videoError: string | null;
   setVideoError: (error: string | null) => void;
   videoProgress: number | null; // 動画生成の進捗
