@@ -1,6 +1,6 @@
 import React from "react";
+import { Tab, TabList, TabPanel, Tabs } from "react-aria-components";
 import { useAppStore } from "../store/useAppStore"; // useAppStore をインポート
-import { Tabs, TabList, Tab, TabPanel } from "react-aria-components";
 import GenerationPanel from "./GenerationPanel"; // 画像生成
 import VideoGenerationPanel from "./VideoGenerationPanel"; // 動画生成
 
@@ -18,7 +18,7 @@ const GenerationTabs = () => {
   return (
     <Tabs
       className="w-full"
-      selectedKey={activeTab === "image" ? "image-tab" : "video-tab"} // selectedKey を追加
+      selectedKey={activeTab === "image" ? "image-tab" : "video-tab"}
       onSelectionChange={handleTabChange}
     >
       <TabList
@@ -52,15 +52,15 @@ const GenerationTabs = () => {
       </TabList>
       <TabPanel
         id="image-tab"
-        className="outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-md" // デバッグ用スタイル削除
+        className="outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-md"
       >
-        <GenerationPanel /> {/* コメント解除 */}
+        <GenerationPanel />
       </TabPanel>
       <TabPanel
         id="video-tab"
-        className="outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-md" // デバッグ用スタイル削除
+        className="outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-md"
       >
-        <VideoGenerationPanel /> {/* コメント解除 */}
+        <VideoGenerationPanel />
       </TabPanel>
     </Tabs>
   );

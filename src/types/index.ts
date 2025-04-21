@@ -17,11 +17,13 @@ export interface ComfyUIParams {
 
 export interface GenerationResult {
   id: string;
-  imageUrl: string; // 画像または動画のURL
   prompt: string; // 生成に使用したプロンプト
   params: ComfyUIParams | VideoGenerationParams; // 画像または動画パラメータ
   timestamp: number;
-  type?: "image" | "video"; // 結果のタイプ (オプション)
+  type: "image" | "video"; // 結果のタイプ (必須)
+  imageUrl?: string; // 画像の場合のURL
+  videoUrl?: string; // 動画の場合のURL
+  thumbnailUrl?: string; // 動画のサムネイルURL (オプション)
 }
 
 export interface ApiResponse {
