@@ -272,33 +272,32 @@ function buildWorkflow(imagePath: string, params: ComfyUIParams): ApiWorkflow {
         // positive/negative入力は変更なし
         positive: ["2", 0],
         negative: ["3", 0],
-        latent_image: ["5", 0],
+        // latent_image 入力を LatentUpscale (ID: 12) からに変更
+        latent_image: ["12", 0],
+      },
+    },
+    // --- LatentUpscale ノードを追加 (ID: 12) ---
+    "12": {
+      class_type: "LatentUpscale",
+      inputs: {
+        samples: ["5", 0], // VAEEncode からの潜像
+        upscale_method: "bicubic", // スケーリング方法
+        width: params.width, // UI からの幅
+        height: params.height, // UI からの高さ
+        crop: "disabled", // クロップしない
       },
     },
     "7": { // VAEDecode
       class_type: "VAEDecode",
       inputs: { samples: ["6", 0], vae: ["1", 2] }, // CheckpointLoaderSimpleからVAEを取得
     },
-    // --- Image Resize ノードを追加 (ID: 11) ---
-    "11": {
-      class_type: "Image Resize", // ImageScale から変更
-      inputs: {
-        image: ["7", 0], // VAEDecode からの画像
-        resize_width: params.width, // パラメータ名を width から変更
-        resize_height: params.height, // パラメータ名を height から変更
-        mode: "resize", // 値を "absolute" から "resize" に変更
-        supersample: "false", // 値を boolean false から string "false" に変更
-        rescale_factor: 1.0, // 追加 (必須パラメータ, float)
-        resampling: "bicubic", // 追加 (必須パラメータ, bicubic, bilinear, nearest など)
-        // interpolation は削除
-      },
-    },
-    // --- SaveImage ノード (ID: 8) の入力を Image Resize に変更 ---
+    // --- Image Resize ノード (ID: 11) を削除 ---
+    // --- SaveImage ノード (ID: 8) の入力を VAEDecode に戻す ---
     "8": { // SaveImage
       class_type: "SaveImage",
       inputs: {
         filename_prefix: "img2img_result",
-        images: ["11", 0], // ID を 10 から 11 に変更
+        images: ["7", 0], // VAEDecode からの画像
       },
     },
   };
