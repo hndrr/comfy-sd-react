@@ -460,13 +460,13 @@
         1,
         10,
         1.0000000000000002,
-        213738928831037,
-        "increment",
+        213738928831015,
         9,
-        7,
+        5,
         6,
         "unipc_bh1",
-        1
+        1,
+        1.5
       ]
     },
     {
@@ -684,7 +684,7 @@
         "cnr_id": "comfy-core",
         "ver": "0.3.28"
       },
-      "widgets_values": ["IMG_9825.jpg", "image"]
+      "widgets_values": ["IMG_9841.jpg", "image"]
     },
     {
       "id": 47,
@@ -714,7 +714,7 @@
         "ver": "0.3.28"
       },
       "widgets_values": [
-        "Dinosaurs move violently to intimidate\n",
+        "robot battle on the table.",
         [false, true]
       ],
       "color": "#232",

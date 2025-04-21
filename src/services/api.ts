@@ -396,12 +396,12 @@ function buildVideoWorkflow(
         break;
       case "FramePackSampler": {
         // ID 39 - Add braces
-        apiNodeInputs["steps"] = params.steps; // UI
+        apiNodeInputs["steps"] = params.steps;
         apiNodeInputs["use_teacache"] = wv[1];
-        apiNodeInputs["motion_strength"] = params.motionStrength; // UI
+        apiNodeInputs["motion_strength"] = params.motionStrength;
+        apiNodeInputs["denoise_strength"] = params.denoiseStrength; // 追加: denoise_strength を params から取得
         apiNodeInputs["guidance_scale"] = wv[3];
-        apiNodeInputs["cfg"] = params.cfgScale; // UI
-        // teacache_rel_l1_thresh: Clamp value to max 1.0, default to 0.15 if not a number
+        apiNodeInputs["cfg"] = params.cfgScale;
         const threshValue = typeof wv[5] === "number" ? wv[5] : 0.15;
         apiNodeInputs["teacache_rel_l1_thresh"] = Math.min(1.0, threshValue);
         apiNodeInputs["seed"] =
@@ -413,7 +413,7 @@ function buildVideoWorkflow(
         apiNodeInputs["latent_window_size"] = wv[8];
         apiNodeInputs["gpu_memory_preservation"] = wv[9];
         // apiNodeInputs["teacache_batch_size"] = wv[10]; // Assuming this is correct index
-        apiNodeInputs["sampler"] = wv[11];
+        apiNodeInputs["sampler"] = wv[10]; // Correct index for sampler
         apiNodeInputs["total_second_length"] = params.total_second_length; // UI
         break;
       } // Add closing brace
