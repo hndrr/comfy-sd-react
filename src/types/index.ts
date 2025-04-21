@@ -13,6 +13,8 @@ export interface ComfyUIParams {
   cfg: number;
   sampler: string;
   seed: number;
+  width: number; // 追加
+  height: number; // 追加
 }
 
 export interface GenerationResult {
