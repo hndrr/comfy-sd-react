@@ -1,12 +1,16 @@
 import axios from "axios";
-import { GenerationParams as VideoGenerationParams } from "../components/ParameterSettings";
+// VideoGenerationParams を types/index.ts からインポート
 import { useAppStore } from "../store/useAppStore";
-// 仮に ComfyUIParams をここで拡張します。後で src/types/index.ts に移動します。
-import type { ComfyUIParams as OriginalComfyUIParams } from "../types"; // 元の型をインポート
-import { ApiResponse, GenerationResult } from "../types";
+import {
+  ApiResponse,
+  ComfyUIParams,
+  GenerationResult,
+  VideoGenerationParams, // types/index.ts からインポート
+} from "../types";
 import videoWorkflowTemplate from "./videoWorkflowTemplate.json";
 
-// --- Helper Type Definitions ---
+// --- Helper Type Definitions --- (変更なし)
+// 重複したインポート文を削除
 type WorkflowInput = {
   name: string;
   type: string;
@@ -30,12 +34,7 @@ type ApiWorkflow = Record<
   { class_type: string; inputs: ApiNodeInputs }
 >;
 
-// src/types/index.ts で定義されるべき型をここで拡張
-export interface ComfyUIParams extends OriginalComfyUIParams {
-  selectedCheckpoint: string | null; // null を許容するように変更
-  selectedLora?: string | null; // オプショナル
-  loraStrength?: number; // オプショナル
-}
+// ここで ComfyUIParams を拡張する定義は削除
 
 // --- API Service ---
 export const comfyUIApi = {

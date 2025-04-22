@@ -1,6 +1,7 @@
 import { AlertTriangle, Loader, Play } from "lucide-react";
-import React, { useState } from "react";
+import React, { useState } from "react"; // useState をインポート
 import { comfyUIApi } from "../services/api";
+import { enhanceText } from "../services/enhanceTextService"; // enhanceText をインポート
 import { useAppStore } from "../store/useAppStore";
 import { GenerationResult } from "../types";
 import ImageUploader from "./ImageUploader";
@@ -16,22 +17,28 @@ const GenerationPanel: React.FC = () => {
     isGenerating,
     setIsGenerating,
     addResult,
-    setError,
+    setError, // 既存のエラー処理も活用
     setProgress,
     setPrompt,
     updateParams,
+    // ストアから imageEnhanceSystemPrompt を直接取得
+    imageEnhanceSystemPrompt,
   } = useAppStore();
 
   const [connectionStatus, setConnectionStatus] = useState<
     "unknown" | "connected" | "error"
   >("unknown");
 
+  // プロンプト拡張用の状態を追加
+  const [isEnhancing, setIsEnhancing] = useState(false);
+  const [enhanceError, setEnhanceError] = useState<string | null>(null);
+
   // APIの接続状態を確認
   const checkConnection = async () => {
     const result = await comfyUIApi.checkStatus();
     if (result.status === "success") {
       setConnectionStatus("connected");
-      setError(null);
+      setError(null); // 接続成功時に既存のエラーをクリア
       return true;
     } else {
       setConnectionStatus("error");
@@ -51,7 +58,7 @@ const GenerationPanel: React.FC = () => {
     if (!isConnected) return;
 
     setIsGenerating(true);
-    setError(null);
+    setError(null); // 生成開始時にエラーをクリア
 
     try {
       // 現在のプロンプトをパラメータに含める
@@ -96,10 +103,50 @@ const GenerationPanel: React.FC = () => {
         setError(result.error || "画像生成中にエラーが発生しました。");
       }
     } catch (error) {
-      setError("画像生成中にエラーが発生しました。");
-      console.error(error);
+      setError(
+        error instanceof Error
+          ? error.message
+          : "画像生成中に不明なエラーが発生しました。"
+      ); // エラーメッセージをより具体的に
+      console.error("Image generation failed:", error); // コンソールにもエラー出力
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  // プロンプト拡張を実行
+  const handleEnhance = async () => {
+    const currentSourceImageFile = sourceImage.file;
+    const currentPrompt = prompt.trim();
+
+    // プロンプトも画像もない場合はエラー
+    if (!currentPrompt && !currentSourceImageFile) {
+      setEnhanceError("拡張するプロンプトを入力するか、画像をアップロードしてください。");
+      return;
+    }
+
+    setIsEnhancing(true);
+    setEnhanceError(null);
+    setError(null); // 拡張開始時に既存のエラーをクリア
+
+    try {
+      // プロンプトが空で画像がある場合は、画像の説明を生成するような指示を追加することも検討
+      // ここでは既存の systemPrompt をそのまま使用
+      const enhancedPrompt = await enhanceText(
+        currentPrompt, // 空文字列の場合もある
+        imageEnhanceSystemPrompt,
+        currentSourceImageFile
+      );
+      setPrompt(enhancedPrompt);
+    } catch (error) {
+      console.error("Prompt enhancement failed:", error);
+      setEnhanceError(
+        error instanceof Error
+          ? `拡張エラー: ${error.message}`
+          : "プロンプトの拡張中に不明なエラーが発生しました。"
+      );
+    } finally {
+      setIsEnhancing(false);
     }
   };
 
@@ -128,7 +175,15 @@ const GenerationPanel: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <ImageUploader imageType="image" />
         <div className="space-y-6">
-          <PromptInput prompt={prompt} setPrompt={setPrompt} />
+          {/* PromptInput に拡張関連の props を渡す */}
+          <PromptInput
+            prompt={prompt}
+            setPrompt={setPrompt}
+            placeholder="Describe the image you want to generate..."
+            onEnhance={handleEnhance}
+            isEnhancing={isEnhancing}
+            enhanceError={enhanceError}
+          />
           <div>
             <label
               htmlFor="negativePromptPanel" // IDを他と区別
@@ -150,9 +205,9 @@ const GenerationPanel: React.FC = () => {
             <button
               type="button"
               onClick={handleGenerate}
-              disabled={isGenerating || !sourceImage.file}
+              disabled={isGenerating || !sourceImage.file || isEnhancing} // 拡張中も生成ボタンを無効化
               className={`w-full flex items-center justify-center space-x-2 px-4 py-3 rounded-lg font-medium transition-colors ${
-                isGenerating || !sourceImage.file
+                isGenerating || !sourceImage.file || isEnhancing // 条件追加
                   ? "bg-gray-200 text-gray-500 dark:bg-gray-800 dark:text-gray-400 cursor-not-allowed"
                   : "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
               }`}
@@ -172,12 +227,6 @@ const GenerationPanel: React.FC = () => {
           </div>
           {/* 5. Progress Bar */}
           {isGenerating && <ProgressBar />}
-          {/* パラメータ表示 (オプション) */}
-          {/* <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-              ノイズ強度: {params.denoiseStrength.toFixed(2)} | ステップ:{" "}
-              {params.steps} | CFG: {params.cfg.toFixed(1)} | サンプラー:{" "}
-              {params.sampler}
-            </p> */}
         </div>
       </div>
     </div>
