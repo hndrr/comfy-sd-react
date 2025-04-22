@@ -37,8 +37,6 @@ const ParameterSettings: React.FC<ParameterSettingsProps> = ({
     }
   };
 
-  // handleNegativePromptChange は不要になったため削除
-
   return (
     <div className="space-y-6">
       <h3 className="text-lg font-medium text-gray-900 dark:text-white">
@@ -188,8 +186,7 @@ const ParameterSettings: React.FC<ParameterSettingsProps> = ({
 
       {/* 詳細設定エリア */}
       {showAdvanced && (
-        <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-gray-800">
-          {/* --- プロンプト拡張 System Prompt 設定 --- */}
+        <div className="space-y-4 dark:border-gray-800">
           <div>
             <label
               htmlFor="video-enhance-system-prompt"
@@ -209,10 +206,6 @@ const ParameterSettings: React.FC<ParameterSettingsProps> = ({
               プロンプト拡張時にAIに与える指示を入力します。
             </p>
           </div>
-          {/* --- ここまでプロンプト拡張 System Prompt 設定 --- */}
-
-          {/* 詳細設定エリアには System Prompt のみ残す */}
-          {/* Seed と Total Second Length の div を削除 */}
         </div>
       )}
     </div>
