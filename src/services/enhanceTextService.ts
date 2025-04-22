@@ -24,8 +24,6 @@ const buildRequestBody = async (
   ];
 
   if (imageFile) {
-    // 画像がある場合も gpt-4.1-nano を使用
-    // model = "gpt-4-turbo"; // モデル変更ロジックを削除
     console.log("Enhancing text with image context using", model, "...");
     try {
       const base64Image = await fileToBase64(imageFile);
@@ -45,8 +43,6 @@ const buildRequestBody = async (
     } catch (error) {
       console.error("Error converting image to base64:", error);
       // 画像処理エラー時はテキストのみでリクエストを試みる
-      // モデルは gpt-4.1-nano のまま
-      // model = "gpt-4.1-nano"; // フォールバック指定は不要
       messages.push({ role: "user", content: text });
       console.log("Image processing failed, using text-only for model:", model);
     }
@@ -59,7 +55,7 @@ const buildRequestBody = async (
     model: model,
     messages: messages,
     temperature: 0.7,
-    max_tokens: 300, // Visionモデルはmax_tokensが必要な場合がある
+    max_tokens: 300,
   };
 };
 
@@ -73,7 +69,7 @@ const buildRequestBody = async (
 export async function enhanceText(
   text: string,
   systemPrompt: string,
-  imageFile: File | null = null // imageFile パラメータを追加
+  imageFile: File | null = null
 ): Promise<string> {
   if (!OPENAI_API_KEY) {
     throw new Error("VITE_OPENAI_API_KEY is not set in environment variables.");
@@ -86,7 +82,7 @@ export async function enhanceText(
 
   try {
     const body = await buildRequestBody(text, systemPrompt, imageFile);
-    console.log("OpenAI Request Body:", JSON.stringify(body, null, 2)); // リクエストボディをログ出力
+    console.log("OpenAI Request Body:", JSON.stringify(body, null, 2));
 
     const response = await fetch(OPENAI_API_URL, {
       method: "POST",
@@ -95,7 +91,7 @@ export async function enhanceText(
     });
 
     if (!response.ok) {
-      const errorBody = await response.json(); // エラーレスポンスもJSON形式で取得試行
+      const errorBody = await response.json();
       console.error(
         `OpenAI Enhance API Error (${response.status}):`,
         errorBody
