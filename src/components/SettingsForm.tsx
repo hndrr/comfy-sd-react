@@ -32,6 +32,9 @@ const SettingsForm: React.FC = () => {
     setSelectedLora,
     setLoraStrength,
     modelListError, // エラー表示用
+    // プロンプト拡張用 System Prompt を追加
+    imageEnhanceSystemPrompt,
+    setImageEnhanceSystemPrompt,
   } = useAppStore();
   const [showAdvanced, setShowAdvanced] = useState(false);
 
@@ -321,10 +324,30 @@ const SettingsForm: React.FC = () => {
               </p>
             </div>
 
-                {/* 構文エラーの原因となっていた重複コードを削除 */}
-              </div>
-            )}
+            {/* --- プロンプト拡張 System Prompt 設定 --- */}
+            <div>
+              <label
+                htmlFor="image-enhance-system-prompt"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
+                画像プロンプト拡張指示 (System Prompt)
+              </label>
+              <textarea
+                id="image-enhance-system-prompt"
+                rows={3}
+                value={imageEnhanceSystemPrompt}
+                onChange={(e) => setImageEnhanceSystemPrompt(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                placeholder="例: Provide a more detailed and visually rich description..."
+              />
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                プロンプト拡張時にAIに与える指示を入力します。
+              </p>
+            </div>
+            {/* --- ここまでプロンプト拡張 System Prompt 設定 --- */}
           </div>
+        )}
+      </div>
     </div>
   );
 };
