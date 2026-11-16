@@ -1,10 +1,20 @@
-import { GenerationParams as VideoGenerationParams } from "../components/ParameterSettings"; // 動画パラメータ型をインポート
+
+// VideoGenerationParams の定義をここに移動
+export interface VideoGenerationParams {
+  steps: number;
+  cfgScale: number; // ComfyUIParams と共通化も検討
+  fps: number;
+  seed: number;
+  total_second_length: number;
+  denoiseStrength: number;
+}
 
 export interface ImageFile {
   file: File | null;
   preview: string;
 }
 
+// ComfyUIParams にモデル選択関連のプロパティを追加
 export interface ComfyUIParams {
   prompt: string;
   negativePrompt: string;
@@ -13,8 +23,11 @@ export interface ComfyUIParams {
   cfg: number;
   sampler: string;
   seed: number;
-  width: number; // 追加
-  height: number; // 追加
+  width: number;
+  height: number;
+  selectedCheckpoint: string | null; // 追加 (null 許容)
+  selectedLora?: string | null; // 追加 (オプショナル)
+  loraStrength?: number; // 追加 (オプショナル)
 }
 
 export interface GenerationResult {

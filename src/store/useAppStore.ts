@@ -1,11 +1,14 @@
 import { create } from "zustand";
-import { GenerationParams as VideoGenerationParams } from "../components/ParameterSettings";
-// comfyUIApi をインポート
-import { ComfyUIParams as ApiComfyUIParams, comfyUIApi } from "../services/api"; // api.ts から拡張された型もインポート
-import { GenerationResult, ImageFile } from "../types";
-// 元の ComfyUIParams 型もインポートしておく（必要に応じて）
+// VideoGenerationParams を types/index.ts からインポート
+import { comfyUIApi } from "../services/api"; // comfyUIApi をインポート
+import {
+  ComfyUIParams as ApiComfyUIParams,
+  GenerationResult,
+  ImageFile, // api.ts で拡張された型
+  VideoGenerationParams, // types/index.ts から
+} from "../types";
 
-// AppState インターフェースに新しい状態とアクションを追加
+// AppState インターフェース
 interface AppState {
   darkMode: boolean;
   toggleDarkMode: () => void;
@@ -30,8 +33,8 @@ interface AppState {
 
   videoPrompt: string;
   setVideoPrompt: (prompt: string) => void;
-  videoGenerationParams: VideoGenerationParams;
-  setVideoGenerationParams: (params: Partial<VideoGenerationParams>) => void;
+  videoGenerationParams: VideoGenerationParams; // 型を修正
+  setVideoGenerationParams: (params: Partial<VideoGenerationParams>) => void; // 型を修正
   videoSourceImage: ImageFile;
   setVideoSourceImage: (image: ImageFile) => void;
   isGeneratingVideo: boolean;
@@ -42,6 +45,9 @@ interface AppState {
   setVideoProgress: (progress: number | null) => void;
   isConnectionSettingsOpen: boolean;
   toggleConnectionSettings: () => void;
+  // --- プロンプト拡張用 System Prompt ---
+  imageEnhanceSystemPrompt: string;
+  videoEnhanceSystemPrompt: string;
 
   isPreviewModalOpen: boolean;
   previewImageUrl: string | null;
@@ -73,6 +79,9 @@ interface AppState {
   setSelectedCheckpoint: (checkpoint: string | null) => void;
   setSelectedLora: (lora: string | null) => void;
   setLoraStrength: (strength: number) => void;
+  // --- プロンプト拡張用 System Prompt セッター ---
+  setImageEnhanceSystemPrompt: (prompt: string) => void;
+  setVideoEnhanceSystemPrompt: (prompt: string) => void;
 }
 
 // DEFAULT_PARAMS の型も ApiComfyUIParams に合わせる
@@ -93,9 +102,10 @@ const DEFAULT_PARAMS: ApiComfyUIParams = {
   loraStrength: 0.8, // デフォルト強度
 };
 
+// デフォルト値の型も VideoGenerationParams に合わせる
 const DEFAULT_VIDEO_PARAMS: VideoGenerationParams = {
   steps: 30,
-  cfgScale: 1,
+  cfgScale: 1, // cfgScale は VideoGenerationParams にある想定
   fps: 24,
   seed: -1,
   total_second_length: 1,
@@ -207,6 +217,12 @@ export const useAppStore = create<AppState>((set, get) => ({ // get を追加
       isGeneratingVideo: false,
       videoProgress: null,
     }),
+  // --- プロンプト拡張用 System Prompt 初期値 ---
+  // デフォルト値は以前 config ファイルにあったものを使用
+  imageEnhanceSystemPrompt:
+    "Provide a more detailed and visually rich description for image generation based on the following input:",
+  videoEnhanceSystemPrompt:
+    "Expand the following input into a prompt suitable for video generation, incorporating elements of motion, camera angles, and scene progression:",
 
   videoSourceImage: {
     file: null,
@@ -311,4 +327,9 @@ export const useAppStore = create<AppState>((set, get) => ({ // get を追加
       params: { ...state.params, loraStrength: strength },
       loraStrength: strength, // loraStrength 状態も更新
     })),
+  // --- プロンプト拡張用 System Prompt セッター実装 ---
+  setImageEnhanceSystemPrompt: (prompt) =>
+    set({ imageEnhanceSystemPrompt: prompt }),
+  setVideoEnhanceSystemPrompt: (prompt) =>
+    set({ videoEnhanceSystemPrompt: prompt }),
 }));
